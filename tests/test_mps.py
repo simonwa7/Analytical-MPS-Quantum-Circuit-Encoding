@@ -75,14 +75,11 @@ def test_shape_get_random_mps_odd(number_of_sites, input_max_bond_dimension):
 
 def test_get_random_mps_is_in_left_canonical_form():
     mps = get_random_mps(4, 8)
+    # Assert first site is unitary
+    assert np.allclose(np.eye(2), abs(mps[0].dot(mps[0].T.conj())).reshape(2, 2))
+
     truncated_mps = get_truncated_mps(mps, 8)
     for index, site in enumerate(truncated_mps):
-        # for i, _ in enumerate(site):
-        #     for j, _ in enumerate(site[i]):
-        #         for k, _ in enumerate(site[i][j]):
-        #             assert site[i][j][k] == mps[index][i][j][k]
-        # assert site.shape == mps[index].shape
-        # assert np.array_equal(site, mps[index])
         np.testing.assert_array_almost_equal(site, mps[index], 1e-16)
     assert len(mps) == len(truncated_mps)
 
