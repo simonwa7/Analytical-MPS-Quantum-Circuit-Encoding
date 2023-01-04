@@ -76,7 +76,8 @@ def test_shape_get_random_mps_odd(number_of_sites, input_max_bond_dimension):
 def test_get_random_mps_is_in_left_canonical_form():
     mps = get_random_mps(4, 8)
     # Assert first site is unitary
-    assert np.allclose(np.eye(2), abs(mps[0].dot(mps[0].T.conj())).reshape(2, 2))
+    first_site = mps[0].reshape(2, 2)
+    assert np.allclose(np.eye(2), first_site.dot(first_site.T.conj()))
 
     truncated_mps = get_truncated_mps(mps, 8)
     for index, site in enumerate(truncated_mps):
