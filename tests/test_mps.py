@@ -73,15 +73,43 @@ def test_shape_get_random_mps_odd(number_of_sites, input_max_bond_dimension):
     assert site.shape[2] == bond_dimension
 
 
-def test_get_random_mps_is_in_left_canonical_form():
-    mps = get_random_mps(4, 8)
+# @pytest.mark.parametrize("number_of_sites", range(2, 20, 2))
+# # @pytest.mark.parametrize("max_bond_dimension", range(2, 1000, 17))
+# def test_get_random_mps_is_in_left_canonical_form(number_of_sites):
+#     mps = get_random_mps(number_of_sites, 2)
+#     # Assert first site is unitary
+#     first_site = mps[0].reshape(mps[0].shape[1], mps[0].shape[2])
+#     assert np.allclose(np.eye(2), first_site.dot(first_site.T.conj()))
+
+#     truncated_mps = get_truncated_mps(mps, 8)
+#     for index, site in enumerate(truncated_mps):
+#         np.testing.assert_array_almost_equal(site, mps[index], 1e-16)
+#     assert len(mps) == len(truncated_mps)
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 20, 3))
+@pytest.mark.parametrize("max_bond_dimension", range(2, 1000, 57))
+def test_truncate_mps_is_in_left_canonical_form(number_of_sites, max_bond_dimension):
+    mps = get_random_mps(number_of_sites, max_bond_dimension)
+    mps = get_truncated_mps(mps, 8)
     # Assert first site is unitary
-    first_site = mps[0].reshape(2, 2)
+    first_site = mps[0].reshape(mps[0].shape[1], mps[0].shape[2])
+    assert np.allclose(np.eye(2), first_site.dot(first_site.T.conj()))
+
+    mps = get_truncated_mps(mps, 5)
+    # Assert first site is unitary
+    first_site = mps[0].reshape(mps[0].shape[1], mps[0].shape[2])
+    assert np.allclose(np.eye(2), first_site.dot(first_site.T.conj()))
+
+    mps = get_truncated_mps(mps, 2)
+    # Assert first site is unitary
+    first_site = mps[0].reshape(mps[0].shape[1], mps[0].shape[2])
     assert np.allclose(np.eye(2), first_site.dot(first_site.T.conj()))
 
     truncated_mps = get_truncated_mps(mps, 8)
-    for index, site in enumerate(truncated_mps):
-        np.testing.assert_array_almost_equal(site, mps[index], 1e-16)
+    np.testing.assert_almost_equal(
+        get_wavefunction(mps), get_wavefunction(truncated_mps), 14
+    )
     assert len(mps) == len(truncated_mps)
 
 
