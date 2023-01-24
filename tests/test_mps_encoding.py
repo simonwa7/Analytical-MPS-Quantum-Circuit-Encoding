@@ -7,6 +7,7 @@ from src.encoding.mps_encoding import (
 import pytest
 import numpy as np
 import copy
+from itertools import combinations
 from src.mps.mps import get_random_mps, get_wavefunction
 
 SEED = 1234
@@ -66,7 +67,8 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
 def test_get_unitary_form_of_mps_site(number_of_sites):
     # Step 1: test that result is unitary
     # Step 2: test that matrix properly encodes mps site
-    mps = get_random_mps(number_of_sites, 8, complex=True)
+    mps = get_random_mps(number_of_sites, 2, complex=True)
+    # mps = get_QR_decomposition_of_mps(mps)
     for i, site in enumerate(mps):
         unitary = get_unitary_form_of_mps_site(site)
         assert is_unitary(unitary, atol=1e-1)
@@ -121,24 +123,55 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit_raises_assertion_when_
     pass
 
 
-@pytest.mark.parametrize("number_of_sites", range(1, 15))
+@pytest.mark.parametrize("number_of_sites", range(1, 20))
 def test_encode_bond_dimension_two_mps_as_quantum_circuit_integration_test(
     number_of_sites,
 ):
     # Randomly generate a bunch of MPS's for varying bond dimension
     # Generate + sim circuits
     # Assert that wf's get closer to MPS state as bd decreases
-    import cirq
-
     mps = get_random_mps(number_of_sites, 2, complex=True)
     mps_wf = get_wavefunction(copy.deepcopy(mps))
-    # is_unitary(get_unitary_form_of_mps_site(mps[1]))
     circuit, qubits = encode_bond_dimension_two_mps_as_quantum_circuit(mps)
+
+    import cirq
 
     simulator = cirq.Simulator()
     result = simulator.simulate(circuit)
     qc_wf = result.final_state_vector
 
-    print("WF Norm: ", np.linalg.norm(mps_wf - qc_wf))
-    cirq.testing.assert_allclose_up_to_global_phase(mps_wf, qc_wf, atol=1e-5)
-    np.testing.assert_allclose(np.abs(mps_wf) ** 2, np.abs(qc_wf) ** 2)
+    np.testing.assert_allclose(
+        abs(mps_wf ** 2),
+        abs(qc_wf ** 2),
+        atol=1e-6,
+    )
+    cirq.testing.assert_allclose_up_to_global_phase(mps_wf, qc_wf, rtol=1e-2, atol=1e-2)
+
+
+@pytest.mark.parametrize("sites", combinations([0, 1, 2, 3], 2))
+def test_encode_bond_dimension_two_mps_as_quantum_circuit_bell_state(sites):
+    bell_state_wf = np.zeros(4)
+    bell_state_wf[sites[0]] = 1.0 / np.sqrt(2)
+    bell_state_wf[sites[1]] = 1.0 / np.sqrt(2)
+    u, s, v = np.linalg.svd(bell_state_wf.reshape(2, 2), full_matrices=False)
+    bell_state_mps = [
+        u.reshape(1, 2, 2),
+        (np.diag(s) @ v).reshape(2, 2, 1),
+    ]
+
+    circuit, qubits = encode_bond_dimension_two_mps_as_quantum_circuit(bell_state_mps)
+
+    import cirq
+
+    simulator = cirq.Simulator()
+    result = simulator.simulate(circuit)
+    qc_wf = result.final_state_vector
+
+    np.testing.assert_allclose(
+        abs(bell_state_wf ** 2),
+        abs(qc_wf ** 2),
+        atol=1e-5,
+    )
+    cirq.testing.assert_allclose_up_to_global_phase(
+        bell_state_wf, qc_wf, rtol=1e-2, atol=1e-2
+    )

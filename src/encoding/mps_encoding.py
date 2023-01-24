@@ -1,6 +1,6 @@
 import numpy as np
 import cirq
-from scipy.linalg import null_space
+from scipy.linalg import null_space, qr
 
 
 def encode_mps_in_quantum_circuit(mps):
@@ -24,7 +24,10 @@ def get_unitary_form_of_mps_site(mps_site):
     right_bond_dimension = mps_site.shape[2]
 
     # Find null space (kernel) of mps site
-    Q = mps_site.reshape(left_bond_dimension * 2, right_bond_dimension)
+    if mps_site.shape == (2, 2, 1):
+        Q, _ = qr(mps_site.reshape(left_bond_dimension * 2, right_bond_dimension))
+    else:
+        Q = mps_site.reshape(left_bond_dimension * 2, right_bond_dimension)
     Q_dagger = Q.T.conj()
     X = null_space(Q_dagger)
 
