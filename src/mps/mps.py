@@ -62,7 +62,7 @@ def get_random_mps(number_of_sites, max_bond_dimension, complex=True):
 
 
 def truncate_singular_values(
-    singular_values, target_number_of_values, remove_zero_values=True
+    singular_values, target_number_of_values, remove_truncated_values=True
 ):
     """Truncate a list of singular values by setting the singular values indexed after
     the target number to zero and renormalizing. Assumes list of singular values is already
@@ -74,14 +74,14 @@ def truncate_singular_values(
     if len(singular_values) < target_number_of_values:
         return singular_values
 
-    singular_values[target_number_of_values:] = [
-        0 for _ in range(len(singular_values) - target_number_of_values)
-    ]
+    singular_values[target_number_of_values:] = np.zeros(
+        len(singular_values) - target_number_of_values
+    )
 
-    if remove_zero_values:
+    if remove_truncated_values:
         singular_values = singular_values[:target_number_of_values]
-
-    return singular_values / np.linalg.norm(singular_values, ord=1)
+    singular_values /= sum(singular_values)
+    return singular_values
 
 
 def _check_decomposition(left_site, right_site, original_contracted_two_site_tensor):
@@ -106,52 +106,45 @@ def _check_decomposition(left_site, right_site, original_contracted_two_site_ten
         )
 
 
+def _contract_sites(left_site, right_site):
+    left_site = copy.deepcopy(left_site)
+    right_site = copy.deepcopy(right_site)
+
+    return ncon([left_site, right_site], [[-1, -2, 1], [1, -3, -4]]).reshape(
+        left_site.shape[0] * 2, right_site.shape[2] * 2
+    )
+
+
 def _contract_and_decompose_and_truncate_sites_into_left_canonical_form(
     left_site, right_site, max_bond_dimension, check_decomposition=False
 ):
-    left_site = copy.deepcopy(left_site)
-    right_site = copy.deepcopy(right_site)
     left_bond_dimension = left_site.shape[0]
     right_bond_dimension = right_site.shape[-1]
     shared_bond_dimension = left_site.shape[-1]
     assert shared_bond_dimension == right_site.shape[0]
+    contracted_site = _contract_sites(left_site, right_site)
 
-    # left_site = left_site.reshape(
-    #     left_bond_dimension * left_site.shape[1], shared_bond_dimension
-    # )
-    # right_site = right_site.reshape(
-    #     shared_bond_dimension, right_site.shape[1] * right_bond_dimension
-    # )
-
-    contracted_two_site_tensor = ncon(
-        [left_site, right_site], [[-1, -2, 1], [1, -3, -4]]
-    ).reshape(left_site.shape[0] * 2, right_site.shape[2] * 2)
-
-    utemp, singular_values, vhtemp = np.linalg.svd(
-        contracted_two_site_tensor, full_matrices=False
-    )
-
-    # Truncate to u, s, and v to max_bond_dimension
+    # SVD
+    u, s, v = np.linalg.svd(contracted_site, full_matrices=False)
+    # Truncate u, s, and v to max_bond_dimension
     new_shared_bond_dimension = min(
         shared_bond_dimension,
         max_bond_dimension,
-        # right_site.shape[1] * right_bond_dimension,
     )
-    singular_values = truncate_singular_values(
-        singular_values, new_shared_bond_dimension, remove_zero_values=True
+    s = truncate_singular_values(
+        s, new_shared_bond_dimension, remove_truncated_values=True
     )
 
-    # Update left and right sites with appropriate bond dimensions in left canonical form
-    utemp = utemp[:, :new_shared_bond_dimension]
-    vhtemp = vhtemp[:new_shared_bond_dimension, :]
-    updated_left_site = utemp
-    updated_right_site = np.diag(singular_values) @ vhtemp
+    u = u[:, :new_shared_bond_dimension]
+    v = v[:new_shared_bond_dimension, :]
+    updated_left_site = u
+    updated_right_site = np.diag(s) @ v
 
     if check_decomposition:
         _check_decomposition(
             updated_left_site,
             updated_right_site,
-            contracted_two_site_tensor,
+            contracted_site,
         )
 
     left_site = updated_left_site.reshape(
@@ -172,24 +165,20 @@ def get_truncated_mps(mps, max_bond_dimension):
     number_of_sites = len(mps)
     mps = copy.deepcopy(mps)
 
-    for site1 in range(0, number_of_sites - 1):
-        site2 = site1 + 1
-        shared_bond_dimension = mps[site1].shape[2]
-        assert mps[site2].shape[0] == shared_bond_dimension
+    for site1_index in range(0, number_of_sites - 1):
+        site2_index = site1_index + 1
 
-        check_decomposition = False
-        # if shared_bond_dimension <= max_bond_dimension:
-        #     check_decomposition = True
         (
-            mps[site1],
-            mps[site2],
+            mps[site1_index],
+            mps[site2_index],
         ) = _contract_and_decompose_and_truncate_sites_into_left_canonical_form(
-            mps[site1],
-            mps[site2],
+            mps[site1_index],
+            mps[site2_index],
             max_bond_dimension,
-            check_decomposition=check_decomposition,
+            check_decomposition=False,
         )
 
+    # TODO: is this normalized?
     return mps
 
 
@@ -207,4 +196,5 @@ def get_wavefunction(mps):
             current_site.shape[1] * wavefunction.shape[1],
         )
 
+    # TODO: is this right?
     return (wavefunction / np.linalg.norm(wavefunction, ord=2)).reshape(2 ** len(mps))

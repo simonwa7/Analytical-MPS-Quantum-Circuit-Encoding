@@ -7,11 +7,12 @@ def encode_mps_in_quantum_circuit(mps):
     pass
 
 
-def is_unitary(unitary):
-    return np.allclose(np.eye(len(unitary)), unitary.dot(unitary.T.conj()))
+def is_unitary(unitary, **kwargs):
+    return np.allclose(np.eye(len(unitary)), unitary.dot(unitary.T.conj()), **kwargs)
 
 
 def get_unitary_form_of_mps_site(mps_site):
+    """Only intended to work for sites with bond dimension 2"""
     assert (
         (mps_site.shape == (2, 2, 2))
         or (mps_site.shape == (2, 2, 1))
@@ -19,8 +20,8 @@ def get_unitary_form_of_mps_site(mps_site):
         or (mps_site.shape == (1, 2, 2))
     )
 
-    right_bond_dimension = mps_site.shape[2]
     left_bond_dimension = mps_site.shape[0]
+    right_bond_dimension = mps_site.shape[2]
 
     # Find null space (kernel) of mps site
     Q = mps_site.reshape(left_bond_dimension * 2, right_bond_dimension)

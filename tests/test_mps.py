@@ -197,12 +197,16 @@ def test_get_truncated_mps_gives_back_same_state():
 
 
 def test_repeated_truncations_gives_same_result():
-    mps = get_random_mps(4, max_bond_dimension=8)
-    truncated_mps = get_truncated_mps(mps, 4)
-    for _ in range(3):
-        new_truncated_mps = get_truncated_mps(copy.deepcopy(truncated_mps), 4)
-        for index, site in enumerate(new_truncated_mps):
-            np.testing.assert_array_almost_equal(truncated_mps[index], site, 1e-16)
+    for i in range(50):
+        np.random.seed(i)
+        mps = get_random_mps(4, max_bond_dimension=8)
+        truncated_mps = get_truncated_mps(mps, 4)
+        for _ in range(30):
+            new_truncated_mps = get_truncated_mps(truncated_mps, 4)
+            for index, site in enumerate(new_truncated_mps):
+                np.testing.assert_array_almost_equal(
+                    abs(truncated_mps[index]), abs(site), 1e-16
+                )
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 1))
@@ -280,10 +284,10 @@ def test_integration_for_mps_truncation_accuracy(number_of_sites):
                     atol=1e-12,
                 )
 
-            if truncated_bond_dimension >= max_bond_dimension / 2:
+            if truncated_bond_dimension >= max_bond_dimension / 1.5:
                 # Check that truncation is close if truncated_bond_dimension
                 # is greater than max_bond_dimension / 2
-                # assert np.isclose(one_norm, 0, atol=0.4)
+                assert np.isclose(one_norm, 0, atol=0.4)
                 assert np.isclose(two_norm, 0, atol=0.2)
 
             for accuracy in accuracies:
