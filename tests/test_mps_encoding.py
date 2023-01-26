@@ -8,6 +8,7 @@ import pytest
 import numpy as np
 import copy
 from itertools import combinations
+import math
 from src.mps.mps import get_random_mps, get_wavefunction
 
 SEED = 1234
@@ -68,22 +69,30 @@ def test_get_unitary_form_of_mps_site(number_of_sites):
     # Step 1: test that result is unitary
     # Step 2: test that matrix properly encodes mps site
     mps = get_random_mps(number_of_sites, 2, complex=True)
-    # mps = get_QR_decomposition_of_mps(mps)
     for i, site in enumerate(mps):
         unitary = get_unitary_form_of_mps_site(site)
-        assert is_unitary(unitary, atol=1e-1)
+        assert is_unitary(unitary, atol=1e-6)
+        assert len(unitary.shape) == 2
+        assert unitary.shape[0] == unitary.shape[1]
+        assert math.log(unitary.shape[0], 2).is_integer()
         if i > 0:
             import cirq
 
             cirq.linalg.kak_decomposition(unitary)
 
 
-def test_get_unitary_form_of_mps_site_returns_square_matrix():
-    pass
-
-
 def test_get_unitary_form_of_mps_site_doesnt_destory_input():
-    pass
+    mps = get_random_mps(10, 2, complex=True)
+    mps_site = np.random.choice(mps)
+    copied_mps_site = copy.deepcopy(mps_site)
+    _ = get_unitary_form_of_mps_site(mps_site)
+    assert np.array_equal(mps_site, copied_mps_site)
+
+
+def test_get_unitary_form_of_mps_site_raises_error_on_not_bd2_site():
+    mps = get_random_mps(4, 8, complex=True)
+    mps_site = mps[1]
+    pytest.raises(AssertionError, get_unitary_form_of_mps_site, mps_site)
 
 
 def test_get_kak_decomposition_parameters_for_unitary():
