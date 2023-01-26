@@ -44,18 +44,8 @@ def encode_bond_dimension_two_mps_as_quantum_circuit(mps):
         qubits[:-1][::-1], qubits[1:][::-1], mps[1:][::-1]
     ):
         unitary = get_unitary_form_of_mps_site(mps_site)
-        parameters = get_kak_decomposition_parameters_for_unitary(unitary)
+        parameters = _get_kak_decomposition_parameters_for_unitary(unitary)
 
-        # if len(parameters) == 3:
-        #     print("--------HERE_________")
-        #     circuit.append(cirq.rz(parameters[0]).on(qubit0))
-        #     circuit.append(cirq.ry(parameters[1]).on(qubit0))
-        #     circuit.append(cirq.rz(parameters[2]).on(qubit0))
-        #     continue
-
-        # i = number_of_qubits - i - 1
-        # j = i - 1
-        # j = i + 1
         circuit.append(cirq.rz(parameters[0]).on(qubit0))
         circuit.append(cirq.ry(parameters[1]).on(qubit0))
         circuit.append(cirq.rz(parameters[2]).on(qubit0))
@@ -83,9 +73,8 @@ def encode_bond_dimension_two_mps_as_quantum_circuit(mps):
         circuit.append(cirq.rz(parameters[14]).on(qubit1))
 
     # Inserting kak decomp on first qubit to rotate first qubit respective to first tensor site
-    # NOTE: not sure if this is correct yet
     unitary = get_unitary_form_of_mps_site(mps[0])
-    parameters = get_kak_decomposition_parameters_for_unitary(unitary)
+    parameters = _get_kak_decomposition_parameters_for_unitary(unitary)
     circuit.append(cirq.rz(parameters[0]).on(qubits[0]))
     circuit.append(cirq.ry(parameters[1]).on(qubits[0]))
     circuit.append(cirq.rz(parameters[2]).on(qubits[0]))
@@ -93,7 +82,10 @@ def encode_bond_dimension_two_mps_as_quantum_circuit(mps):
     return circuit, qubits
 
 
-def get_kak_decomposition_parameters_for_unitary(unitary):
+def _get_kak_decomposition_parameters_for_unitary(unitary):
+    import copy
+
+    unitary = copy.deepcopy(unitary)
     if int(np.log2(unitary.shape[0])) == 1:
         return cirq.linalg.deconstruct_single_qubit_matrix_into_angles(unitary)
 
