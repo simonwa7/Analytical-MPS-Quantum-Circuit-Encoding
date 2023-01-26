@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: CICD
     name: Test python API
     steps:
     - uses: actions/checkout@v1
@@ -16,4 +17,4 @@ jobs:
       run: |
         curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov -t ${CODECOV_TOKEN}
+        ./codecov -t ${{ secrets.CODECOV_TOKEN }}
