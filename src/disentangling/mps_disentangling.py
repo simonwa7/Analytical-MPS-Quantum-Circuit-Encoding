@@ -1,17 +1,15 @@
-from encoding.mps_encoding import get_unitary_form_of_mps_site
+from ..encoding.mps_encoding import get_unitary_form_of_mps_site
 import pdb
 import numpy as np
 from ncon import ncon
-from mps.mps import get_truncated_mps
 import copy
 
-# def apply_matrix_product_disentangler(mps, mpd):
-#     assert len(mps) == len(mpd)
 
-#     for mp
+def disentangle_mps(mps, mpd):
+    pass
 
 
-def get_matrix_product_disentangler(mps):
+def _get_matrix_product_disentangler(mps):
     mps = copy.deepcopy(mps)
     mpd = [None] * len(mps)
     for i, mps_site in enumerate(mps):
@@ -21,7 +19,7 @@ def get_matrix_product_disentangler(mps):
 
 def completely_disentangle_bd2_mps(mps):
     mps = copy.deepcopy(mps)
-    mpd = get_matrix_product_disentangler(mps)
+    mpd = _get_matrix_product_disentangler(mps)
 
     import pdb
 
