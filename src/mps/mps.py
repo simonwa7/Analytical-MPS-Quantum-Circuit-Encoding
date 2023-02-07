@@ -196,5 +196,4 @@ def get_wavefunction(mps):
             current_site.shape[1] * wavefunction.shape[1],
         )
 
-    # TODO: is this right?
     return (wavefunction / np.linalg.norm(wavefunction, ord=2)).reshape(2 ** len(mps))
