@@ -4,6 +4,7 @@ from src.mps.mps import (
     get_truncated_mps,
     get_wavefunction,
     _contract_and_decompose_and_truncate_sites_into_left_canonical_form,
+    get_mps,
 )
 import pytest
 import numpy as np
@@ -230,7 +231,7 @@ def test_get_wavefunction_bell_state():
     bell_state_mps = np.array(
         [
             np.array([[[1.0, 0.0], [0.0, 1.0]]]),
-            np.array([[[0.70710678], [0.0]], [[0.0], [0.70710678]]]),
+            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
         ]
     )
     bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
@@ -296,3 +297,49 @@ def test_integration_for_mps_truncation_accuracy(number_of_sites):
                 assert two_norm <= accuracy
 
             accuracies.append(one_norm)
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
+def test_get_mps_size(number_of_sites):
+    wavefunction = np.random.uniform(0, 1, 2 ** number_of_sites)
+    wavefunction /= sum(wavefunction)
+    mps = get_mps(wavefunction)
+
+    assert len(mps) == number_of_sites
+
+
+def test_get_mps_bell_state():
+    expected_mps = np.array(
+        [
+            np.array([[[1.0, 0.0], [0.0, 1.0]]]),
+            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
+        ]
+    )
+    bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
+    bell_state_mps = get_mps(bell_state)
+    assert len(bell_state_mps) == len(expected_mps)
+    for site, expected_site in zip(bell_state_mps, expected_mps):
+        np.testing.assert_almost_equal(site, expected_site, 16)
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
+def test_get_mps_doesnt_destroy_original_mps(number_of_sites):
+    wavefunction = np.random.uniform(0, 1, 2 ** number_of_sites)
+    wavefunction /= sum(wavefunction)
+    copied_wavefunction = copy.deepcopy(wavefunction)
+    get_mps(wavefunction)
+    assert np.array_equal(wavefunction, copied_wavefunction)
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
+def test_get_mps_integration_test(number_of_sites):
+    from src.mps.mps import get_random_mps, get_wavefunction
+
+    random_mps = get_random_mps(number_of_sites, max_bond_dimension=1024)
+    wavefunction = get_wavefunction(random_mps)
+    recovered_mps = get_mps(wavefunction)
+    assert len(random_mps) == len(recovered_mps)
+
+    recovered_wavefunction = get_wavefunction(recovered_mps)
+    assert wavefunction.shape == recovered_wavefunction.shape
+    np.testing.assert_array_almost_equal(wavefunction, recovered_wavefunction, 14)
