@@ -13,8 +13,7 @@ def disentangle_mps(mps, mpd, strategy="naive"):
 
 
 def _disentangle_mps_naive(mps, mpd):
-    from src.mps.mps import get_wavefunction, get_truncated_mps
-    from ._utils import _get_mps
+    from src.mps.mps import get_wavefunction, get_truncated_mps, get_mps
     from src.encoding.mps_encoding import (
         encode_bond_dimension_two_mps_as_quantum_circuit,
     )
@@ -27,7 +26,7 @@ def _disentangle_mps_naive(mps, mpd):
         get_truncated_mps(mps, 2)
     )
     disentangling_operator = cirq.unitary(circuit).T.conj()
-    return _get_mps((disentangling_operator @ wavefunction).reshape(len(wavefunction)))
+    return get_mps((disentangling_operator @ wavefunction).reshape(len(wavefunction)))
 
 
 def _disentangle_mps_tensor(mps, mpd):

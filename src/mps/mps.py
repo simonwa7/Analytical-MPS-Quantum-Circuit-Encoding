@@ -197,3 +197,30 @@ def get_wavefunction(mps):
         )
 
     return (wavefunction / np.linalg.norm(wavefunction, ord=2)).reshape(2 ** len(mps))
+
+
+def get_mps(wavefunction):
+    wavefunction = copy.deepcopy(wavefunction)
+    number_of_sites = int(np.log2(len(wavefunction)))
+    assert wavefunction.shape == (2 ** number_of_sites,)
+    mps = [None] * number_of_sites
+
+    for site_index in range(number_of_sites - 1):
+        left_bond_dim = min(2 ** (site_index), 2 ** (number_of_sites - site_index))  #
+        right_bond_dim = min(
+            2 ** (site_index + 1), 2 ** (number_of_sites - site_index - 1)
+        )
+        left_wavefunction_dim = min(
+            2 ** (site_index + 1), 2 ** (number_of_sites - site_index + 1)
+        )
+        right_wavefunction_dim = min(
+            2 ** (number_of_sites - 1), 2 ** (number_of_sites - site_index - 1)
+        )
+        wavefunction = wavefunction.reshape(
+            left_wavefunction_dim, right_wavefunction_dim
+        )
+        u, s, v = np.linalg.svd(wavefunction, full_matrices=False)
+        mps[site_index] = u.reshape(left_bond_dim, 2, right_bond_dim)
+        wavefunction = ncon([np.diag(s), v], [[-1, 1], [1, -2]])
+    mps[number_of_sites - 1] = wavefunction.reshape(2, 2, 1)
+    return get_truncated_mps(mps, 2 ** number_of_sites)
