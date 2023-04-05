@@ -3,11 +3,14 @@ import pdb
 import numpy as np
 from ncon import ncon
 import copy
+import cirq
 
 
 def disentangle_mps(mps, mpd, strategy="naive"):
     if strategy == "naive":
         return _disentangle_mps_naive(mps, mpd)
+    if strategy == "naive_with_circuit":
+        return _disentangle_mps_naive_with_circuit(mps, mpd)
     elif strategy == "tensor":
         return _disentangle_mps_tensor(mps, mpd)
 
@@ -17,7 +20,6 @@ def _disentangle_mps_naive(mps, mpd):
     from src.encoding.mps_encoding import (
         encode_bond_dimension_two_mps_as_quantum_circuit,
     )
-    import cirq
 
     mps = copy.deepcopy(mps)
 
@@ -27,6 +29,14 @@ def _disentangle_mps_naive(mps, mpd):
     )
     disentangling_operator = cirq.unitary(circuit).T.conj()
     return get_mps((disentangling_operator @ wavefunction).reshape(len(wavefunction)))
+
+
+def _disentangle_mps_naive_with_circuit(mps, circuit):
+    from src.mps.mps import get_wavefunction, get_mps
+
+    mps_wf = get_wavefunction(mps)
+    disentangling_operator = cirq.unitary(circuit).T.conj()
+    return get_mps((disentangling_operator @ mps_wf).reshape(len(mps_wf)))
 
 
 def _disentangle_mps_tensor(mps, mpd):
