@@ -138,6 +138,26 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2(
     assert np.isclose(np.abs(disentangled_wf)[3], 0, 1e-15)
 
 
+@pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
+def test_disentangled_mps_overlap_with_zero_state_is_1(
+    number_of_sites,
+):
+    mps = get_random_mps(number_of_sites, 2)
+    circuit, _ = encode_bond_dimension_two_mps_as_quantum_circuit(mps)
+    disentangled_mps = disentangle_mps(mps, circuit, strategy="naive_with_circuit")
+    disentangled_wf = get_wavefunction(disentangled_mps)
+
+    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state[0] = 1
+    overlap = abs(
+        np.dot(
+            zero_state.T.conj(),
+            disentangled_wf.reshape(2 ** len(mps)),
+        )
+    )
+    assert overlap > 0.999999999999999  # 15 9's
+
+
 @pytest.mark.parametrize("number_of_sites", range(4, 7, 1))
 @pytest.mark.parametrize("max_bond_dimension", range(4, 1000, 57))
 def test_disentangle_mps_always_returns_mps_with_smaller_bond_dimension(
