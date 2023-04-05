@@ -2,6 +2,7 @@ from src.encoding.mps_encoding import (
     is_unitary,
     get_unitary_form_of_mps_site,
     encode_bond_dimension_two_mps_as_quantum_circuit,
+    encode_mps_in_quantum_circuit,
 )
 import pytest
 import numpy as np
@@ -9,7 +10,7 @@ import copy
 from itertools import combinations
 import math
 import cirq
-from src.mps.mps import get_random_mps, get_wavefunction, get_truncated_mps
+from src.mps.mps import get_random_mps, get_wavefunction, get_truncated_mps, get_mps
 
 SEED = 1234
 np.random.seed(SEED)
@@ -104,12 +105,10 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit(number_of_sites):
     result = simulator.simulate(circuit)
     qc_wf = result.final_state_vector
 
-    np.testing.assert_allclose(
-        abs(mps_wf ** 2),
-        abs(qc_wf ** 2),
-        atol=1e-6,
+    overlap = abs(
+        np.dot(mps_wf.reshape(2 ** len(mps)).T.conj(), qc_wf.reshape(2 ** len(mps)))
     )
-    cirq.testing.assert_allclose_up_to_global_phase(mps_wf, qc_wf, rtol=1e-2, atol=1e-2)
+    assert overlap > 0.999999
 
 
 @pytest.mark.parametrize("sites", combinations([0, 1, 2, 3], 2))
@@ -129,14 +128,8 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit_bell_state(sites):
     result = simulator.simulate(circuit)
     qc_wf = result.final_state_vector
 
-    np.testing.assert_allclose(
-        abs(bell_state_wf ** 2),
-        abs(qc_wf ** 2),
-        atol=1e-5,
-    )
-    cirq.testing.assert_allclose_up_to_global_phase(
-        bell_state_wf, qc_wf, rtol=1e-2, atol=1e-2
-    )
+    overlap = abs(np.dot(bell_state_wf.T.conj(), qc_wf.reshape(4)))
+    assert overlap > 0.999999
 
 
 def test_encode_bond_dimension_two_mps_as_quantum_circuit_doesnt_destroy_input():
