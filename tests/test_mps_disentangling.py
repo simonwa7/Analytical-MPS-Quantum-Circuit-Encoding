@@ -12,7 +12,6 @@ import pytest
 import numpy as np
 from ncon import ncon
 import copy
-import cirq
 from src.mps.mps import get_random_mps, get_wavefunction, get_truncated_mps
 
 SEED = 1234
@@ -97,21 +96,11 @@ def test_disentangle_mps_completely_disentangles_two_qubit_bell_state(bell_state
     mpd = get_matrix_product_disentangler(get_truncated_mps(bell_state_mps, 2))
     disentangled_bell_state_mps = disentangle_mps(bell_state_mps, mpd)
     disentangled_bell_state = get_wavefunction(disentangled_bell_state_mps)
-    entenglement = np.abs(
-        2
-        * (
-            np.abs(disentangled_bell_state[0]) ** 2
-            * np.abs(disentangled_bell_state[3]) ** 2
-            - np.abs(disentangled_bell_state[1]) ** 2
-            * np.abs(disentangled_bell_state[2]) ** 2
-        )
-    )
-    assert np.isclose(entenglement, 0, 1e-15)
 
-    assert np.isclose(np.abs(disentangled_bell_state)[0], 1, 1e-15)
-    assert np.isclose(np.abs(disentangled_bell_state)[1], 0, 1e-15)
-    assert np.isclose(np.abs(disentangled_bell_state)[2], 0, 1e-15)
-    assert np.isclose(np.abs(disentangled_bell_state)[3], 0, 1e-15)
+    zero_state = np.zeros(4)
+    zero_state[0] = 1
+    overlap = abs(np.dot(disentangled_bell_state.T.conj(), zero_state))
+    assert overlap > (1 - 1e-15)  # 6 9's of fidelity
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 7, 1))
@@ -123,19 +112,10 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2(
     disentangled_mps = disentangle_mps(mps, mpd)
     disentangled_wf = get_wavefunction(disentangled_mps)
 
-    entenglement = np.abs(
-        2
-        * (
-            np.abs(disentangled_wf[0]) ** 2 * np.abs(disentangled_wf[3]) ** 2
-            - np.abs(disentangled_wf[1]) ** 2 * np.abs(disentangled_wf[2]) ** 2
-        )
-    )
-    assert np.isclose(entenglement, 0, 1e-15)
-
-    assert np.isclose(np.abs(disentangled_wf)[0], 1, 1e-15)
-    assert np.isclose(np.abs(disentangled_wf)[1], 0, 1e-15)
-    assert np.isclose(np.abs(disentangled_wf)[2], 0, 1e-15)
-    assert np.isclose(np.abs(disentangled_wf)[3], 0, 1e-15)
+    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state[0] = 1
+    overlap = abs(np.dot(disentangled_wf.T.conj(), zero_state))
+    assert overlap > (1 - 1e-15)  # 6 9's of fidelity
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
@@ -160,25 +140,19 @@ def test_disentangled_mps_overlap_with_zero_state_is_1(
 
 @pytest.mark.parametrize("number_of_sites", range(4, 7, 1))
 @pytest.mark.parametrize("max_bond_dimension", range(4, 1000, 57))
-def test_disentangle_mps_always_returns_mps_with_smaller_bond_dimension(
+def test_disentangle_mps_always_increases_overlap_with_zero_state(
     number_of_sites, max_bond_dimension
 ):
     mps = get_random_mps(number_of_sites, max_bond_dimension)
+    mps_wf = get_wavefunction(mps)
+
     mpd = get_matrix_product_disentangler(get_truncated_mps(mps, 2))
     disentangled_mps = disentangle_mps(mps, mpd)
     disentangled_wf = get_wavefunction(disentangled_mps)
 
-    for bd in range(int(max_bond_dimension / 2) + 1, max_bond_dimension):
-        truncated_disentangled_mps = get_truncated_mps(disentangled_mps, bd)
-        truncated_disentangled_wf = get_wavefunction(truncated_disentangled_mps)
+    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state[0] = 1
 
-        # np.testing.assert_array_almost_equal(disentangled_wf, truncated_disentangled_wf, 14)
-        # np.testing.assert_array_almost_equal(
-        #     disentangled_mps, truncated_disentangled_mps, 16
-        # )
-        cirq.testing.assert_allclose_up_to_global_phase(
-            np.abs(disentangled_wf),
-            np.abs(truncated_disentangled_wf),
-            rtol=1e-2,
-            atol=1e-2,
-        )
+    mps_overlap = abs(np.dot(mps_wf.T.conj(), zero_state))
+    disentangled_overlap = abs(np.dot(disentangled_wf.T.conj(), zero_state))
+    assert disentangled_overlap > mps_overlap
