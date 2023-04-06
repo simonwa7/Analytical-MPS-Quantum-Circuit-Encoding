@@ -101,14 +101,11 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit(number_of_sites):
     mps_wf = get_wavefunction(copy.deepcopy(mps))
     circuit, _ = encode_bond_dimension_two_mps_as_quantum_circuit(mps)
 
-    simulator = cirq.Simulator()
-    result = simulator.simulate(circuit)
-    qc_wf = result.final_state_vector
-
-    overlap = abs(
-        np.dot(mps_wf.reshape(2 ** len(mps)).T.conj(), qc_wf.reshape(2 ** len(mps)))
-    )
-    assert overlap > 0.999999
+    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state[0] = 1
+    prepared_state = cirq.unitary(circuit) @ zero_state
+    overlap = abs(np.dot(mps_wf.reshape(2 ** len(mps)).T.conj(), prepared_state))
+    assert overlap > (1 - 1e-15)
 
 
 @pytest.mark.parametrize("sites", combinations([0, 1, 2, 3], 2))
