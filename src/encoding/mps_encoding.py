@@ -16,19 +16,20 @@ def encode_mps_in_quantum_circuit(mps, number_of_layers=1):
     circuits = []
     disentangled_mps = mps
     while len(circuits) < number_of_layers:
-        # while max_bond_dimension > 1:
-        # print(max_bond_dimension)
-        bd2_mps = get_truncated_mps(disentangled_mps, 2)
-        partial_circuit, _ = encode_bond_dimension_two_mps_as_quantum_circuit(bd2_mps)
-        circuits.append(partial_circuit)
-
-        circuit = cirq.Circuit()
-        for partial_circuit in circuits[::-1]:
-            circuit += partial_circuit
-        disentangled_mps = disentangle_mps(mps, circuit, strategy="naive_with_circuit")
+        if len(circuits) > 0:
+            circuit = cirq.Circuit()
+            for partial_circuit in circuits[::-1]:
+                circuit += partial_circuit
+            disentangled_mps = disentangle_mps(
+                mps, circuit, strategy="naive_with_circuit"
+            )
 
         # max_bond_dimension = int(max_bond_dimension / 2)
         disentangled_mps = get_truncated_mps(disentangled_mps, max_bond_dimension)
+
+        bd2_mps = get_truncated_mps(disentangled_mps, 2)
+        partial_circuit, _ = encode_bond_dimension_two_mps_as_quantum_circuit(bd2_mps)
+        circuits.append(partial_circuit)
 
     circuit = cirq.Circuit()
     for partial_circuit in circuits[::-1]:
