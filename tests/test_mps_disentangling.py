@@ -2,6 +2,7 @@ from src.encoding.mps_encoding import (
     is_unitary,
     get_unitary_form_of_mps_site,
     encode_bond_dimension_two_mps_as_quantum_circuit,
+    encode_mps_in_quantum_circuit,
 )
 
 from src.disentangling.mps_disentangling import (
@@ -103,7 +104,7 @@ def test_disentangle_mps_completely_disentangles_two_qubit_bell_state(bell_state
     assert overlap > (1 - 1e-15)  # 6 9's of fidelity
 
 
-@pytest.mark.parametrize("number_of_sites", range(2, 7, 1))
+@pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
 def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2(
     number_of_sites,
 ):
@@ -115,11 +116,11 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2(
     zero_state = np.zeros(2 ** number_of_sites)
     zero_state[0] = 1
     overlap = abs(np.dot(disentangled_wf.T.conj(), zero_state))
-    assert overlap > (1 - 1e-15)  # 6 9's of fidelity
+    assert overlap > (1 - 1e-15)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
-def test_disentangled_mps_overlap_with_zero_state_is_1(
+def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2_naive_with_circuit_method(
     number_of_sites,
 ):
     mps = get_random_mps(number_of_sites, 2)
@@ -135,10 +136,10 @@ def test_disentangled_mps_overlap_with_zero_state_is_1(
             disentangled_wf.reshape(2 ** len(mps)),
         )
     )
-    assert overlap > 0.999999999999999  # 15 9's
+    assert overlap > (1 - 1e-15)
 
 
-@pytest.mark.parametrize("number_of_sites", range(4, 7, 1))
+@pytest.mark.parametrize("number_of_sites", range(1, 10, 1))
 @pytest.mark.parametrize("max_bond_dimension", range(4, 1000, 57))
 def test_disentangle_mps_always_increases_overlap_with_zero_state(
     number_of_sites, max_bond_dimension
@@ -146,8 +147,8 @@ def test_disentangle_mps_always_increases_overlap_with_zero_state(
     mps = get_random_mps(number_of_sites, max_bond_dimension)
     mps_wf = get_wavefunction(mps)
 
-    mpd = get_matrix_product_disentangler(get_truncated_mps(mps, 2))
-    disentangled_mps = disentangle_mps(mps, mpd)
+    circuit, _, _ = encode_mps_in_quantum_circuit(mps)
+    disentangled_mps = disentangle_mps(mps, circuit, strategy="naive_with_circuit")
     disentangled_wf = get_wavefunction(disentangled_mps)
 
     zero_state = np.zeros(2 ** number_of_sites)
