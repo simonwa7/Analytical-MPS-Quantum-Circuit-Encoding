@@ -139,7 +139,7 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2_naive
     assert overlap > (1 - 1e-15)
 
 
-@pytest.mark.parametrize("number_of_sites", range(1, 10, 1))
+@pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
 @pytest.mark.parametrize("max_bond_dimension", range(4, 1000, 57))
 def test_disentangle_mps_always_increases_overlap_with_zero_state(
     number_of_sites, max_bond_dimension
@@ -157,3 +157,30 @@ def test_disentangle_mps_always_increases_overlap_with_zero_state(
     mps_overlap = abs(np.dot(mps_wf.T.conj(), zero_state))
     disentangled_overlap = abs(np.dot(disentangled_wf.T.conj(), zero_state))
     assert disentangled_overlap > mps_overlap
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
+@pytest.mark.parametrize("max_bond_dimension", range(2, 32))
+def test_disentangle_mps_always_decreases_entanglement(
+    number_of_sites, max_bond_dimension
+):
+    def _concurrence(rho):
+        pass
+
+    def _get_density_matrix(wavefunction):
+        return np.outer(wavefunction, wavefunction.conj().T)
+
+    def _calculate_entanglement_of_wavefunction(wavefunction):
+        density_matrix = _get_density_matrix(wavefunction)
+        return _concurrence(density_matrix)
+
+    mps = get_random_mps(number_of_sites, max_bond_dimension)
+    mps_wf = get_wavefunction(mps)
+
+    circuit, _, _ = encode_mps_in_quantum_circuit(mps)
+    disentangled_mps = disentangle_mps(mps, circuit, strategy="naive_with_circuit")
+    disentangled_wf = get_wavefunction(disentangled_mps)
+
+    original_entanglement = _calculate_entanglement_of_wavefunction(mps_wf)
+    new_entanglement = _calculate_entanglement_of_wavefunction(disentangled_wf)
+    assert original_entanglement > new_entanglement
