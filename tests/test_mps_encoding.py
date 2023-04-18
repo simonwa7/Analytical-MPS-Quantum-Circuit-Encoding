@@ -3,6 +3,7 @@ from src.encoding.mps_encoding import (
     get_unitary_form_of_mps_site,
     encode_bond_dimension_two_mps_as_quantum_circuit,
     encode_mps_in_quantum_circuit,
+    add_MPS_layer,
 )
 import pytest
 import numpy as np
@@ -237,3 +238,289 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit_raises_assertion_when_
 #     _, _, _ = encode_mps_in_quantum_circuit(mps)
 #     for site, copied_site in zip(mps, copied_mps):
 #         assert np.array_equal(site, copied_site)
+
+
+def test_add_MPS_layer_does_not_alter_input_parameters():
+    number_of_qubits = 5
+    qubits = [cirq.LineQubit(i) for i in range(number_of_qubits)]
+    circuit = cirq.Circuit()
+    parameters = np.random.uniform(0, 2 * np.pi, 63)
+    copied_parameters = copy.deepcopy(parameters)
+    add_MPS_layer(circuit, qubits, parameters)
+    np.testing.assert_array_equal(parameters, copied_parameters)
+
+
+@pytest.mark.parametrize("number_of_parameters", [0, 1, 10, 17, 40, 62, 64, 78, 63 * 2])
+def test_add_MPS_layer_checks_number_of_parameters_is_correct(number_of_parameters):
+    number_of_qubits = 5
+    qubits = [cirq.LineQubit(i) for i in range(number_of_qubits)]
+    circuit = cirq.Circuit()
+    parameters = np.random.uniform(0, 2 * np.pi, number_of_parameters)
+
+    pytest.raises(AssertionError, add_MPS_layer, circuit, qubits, parameters)
+
+
+def test_add_MPS_layer_adds_to_existing_circuit():
+    number_of_qubits = 5
+    qubits = [cirq.LineQubit(i) for i in range(number_of_qubits)]
+    circuit = cirq.Circuit()
+    circuit.append(cirq.X.on(qubits[0]))
+    parameters = np.random.uniform(0, 2 * np.pi, 63)
+
+    circuit = add_MPS_layer(circuit, qubits, parameters)
+    assert isinstance(
+        circuit.operation_at(qubits[0], 0).gate, cirq.ops.pauli_gates._PauliX
+    )
+
+
+def test_add_MPS_layer_adds_parameters_in_correct_order_one_qubit():
+    number_of_qubits = 1
+    number_of_parameters = 3
+    qubits = [cirq.LineQubit(i) for i in range(number_of_qubits)]
+    circuit = cirq.Circuit()
+    parameters = np.random.uniform(0, 2 * np.pi, number_of_parameters)
+
+    circuit = add_MPS_layer(circuit, qubits, parameters)
+    assert circuit.operation_at(qubits[0], 0).gate._rads == parameters[0]
+    assert circuit.operation_at(qubits[0], 1).gate._rads == parameters[1]
+    assert circuit.operation_at(qubits[0], 2).gate._rads == parameters[2]
+
+
+@pytest.mark.parametrize("number_of_qubits", range(2, 12))
+def test_add_MPS_layer_adds_parameters_in_correct_order(number_of_qubits):
+    number_of_parameters = (15 * (number_of_qubits - 1)) + 3
+    qubits = [cirq.LineQubit(i) for i in range(number_of_qubits)]
+    circuit = cirq.Circuit()
+    parameters = np.random.uniform(0, 2 * np.pi, number_of_parameters)
+
+    circuit = add_MPS_layer(circuit, qubits, parameters)
+
+    # Check first KAK decomp
+    assert circuit.operation_at(qubits[-2], 0).gate._rads == parameters[0]
+    assert circuit.operation_at(qubits[-2], 1).gate._rads == parameters[1]
+    assert circuit.operation_at(qubits[-2], 2).gate._rads == parameters[2]
+
+    assert circuit.operation_at(qubits[-1], 0).gate._rads == parameters[3]
+    assert circuit.operation_at(qubits[-1], 1).gate._rads == parameters[4]
+    assert circuit.operation_at(qubits[-1], 2).gate._rads == parameters[5]
+
+    np.testing.assert_almost_equal(
+        circuit.operation_at(qubits[-2], 3).gate.exponent,
+        (-2 / np.pi) * parameters[6],
+        12,
+    )
+    np.testing.assert_almost_equal(
+        circuit.operation_at(qubits[-2], 4).gate.exponent,
+        (-2 / np.pi) * parameters[7],
+        12,
+    )
+    np.testing.assert_almost_equal(
+        circuit.operation_at(qubits[-2], 5).gate.exponent,
+        (-2 / np.pi) * parameters[8],
+        12,
+    )
+
+    assert circuit.operation_at(qubits[-2], 6).gate._rads == parameters[9]
+    assert circuit.operation_at(qubits[-2], 7).gate._rads == parameters[10]
+    assert circuit.operation_at(qubits[-2], 8).gate._rads == parameters[11]
+
+    assert circuit.operation_at(qubits[-1], 6).gate._rads == parameters[12]
+    assert circuit.operation_at(qubits[-1], 7).gate._rads == parameters[13]
+    assert circuit.operation_at(qubits[-1], 8).gate._rads == parameters[14]
+
+    if number_of_qubits > 2:
+        # Check second KAK decomp
+        assert circuit.operation_at(qubits[-3], 0).gate._rads == parameters[15]
+        assert circuit.operation_at(qubits[-3], 1).gate._rads == parameters[16]
+        assert circuit.operation_at(qubits[-3], 2).gate._rads == parameters[17]
+
+        assert circuit.operation_at(qubits[-2], 9).gate._rads == parameters[18]
+        assert circuit.operation_at(qubits[-2], 10).gate._rads == parameters[19]
+        assert circuit.operation_at(qubits[-2], 11).gate._rads == parameters[20]
+
+        np.testing.assert_almost_equal(
+            circuit.operation_at(qubits[-3], 12).gate.exponent,
+            (-2 / np.pi) * parameters[21],
+            12,
+        )
+        np.testing.assert_almost_equal(
+            circuit.operation_at(qubits[-3], 13).gate.exponent,
+            (-2 / np.pi) * parameters[22],
+            12,
+        )
+        np.testing.assert_almost_equal(
+            circuit.operation_at(qubits[-3], 14).gate.exponent,
+            (-2 / np.pi) * parameters[23],
+            12,
+        )
+
+        assert circuit.operation_at(qubits[-3], 15).gate._rads == parameters[24]
+        assert circuit.operation_at(qubits[-3], 16).gate._rads == parameters[25]
+        assert circuit.operation_at(qubits[-3], 17).gate._rads == parameters[26]
+
+        assert circuit.operation_at(qubits[-2], 15).gate._rads == parameters[27]
+        assert circuit.operation_at(qubits[-2], 16).gate._rads == parameters[28]
+        assert circuit.operation_at(qubits[-2], 17).gate._rads == parameters[29]
+
+    if number_of_qubits > 2:
+        # Check last KAK decomp (second last unitary)
+        assert circuit.moments[0].operations[-1].gate._rads == parameters[-18]
+        assert circuit.moments[1].operations[-1].gate._rads == parameters[-17]
+        assert circuit.moments[2].operations[-1].gate._rads == parameters[-16]
+
+        assert circuit.moments[-12].operations[0].gate._rads == parameters[-15]
+        assert circuit.moments[-11].operations[0].gate._rads == parameters[-14]
+        assert circuit.moments[-10].operations[0].gate._rads == parameters[-13]
+
+        np.testing.assert_almost_equal(
+            circuit.moments[-9].operations[0].gate.exponent,
+            (-2 / np.pi) * parameters[-12],
+            12,
+        )
+        np.testing.assert_almost_equal(
+            circuit.moments[-8].operations[0].gate.exponent,
+            (-2 / np.pi) * parameters[-11],
+            12,
+        )
+        np.testing.assert_almost_equal(
+            circuit.moments[-7].operations[0].gate.exponent,
+            (-2 / np.pi) * parameters[-10],
+            12,
+        )
+
+        assert circuit.moments[-6].operations[0].gate._rads == parameters[-9]
+        assert circuit.moments[-5].operations[0].gate._rads == parameters[-8]
+        assert circuit.moments[-4].operations[0].gate._rads == parameters[-7]
+
+        assert circuit.moments[-6].operations[1].gate._rads == parameters[-6]
+        assert circuit.moments[-5].operations[1].gate._rads == parameters[-5]
+        assert circuit.moments[-4].operations[1].gate._rads == parameters[-4]
+
+    # Check final unitary
+    assert circuit.moments[-3].operations[0].gate._rads == parameters[-3]
+    assert circuit.moments[-2].operations[0].gate._rads == parameters[-2]
+    assert circuit.moments[-1].operations[0].gate._rads == parameters[-1]
+
+
+def test_add_MPS_layer_outputs_pqc_with_correct_structure():
+    number_of_qubits = 4
+    number_of_parameters = (15 * (number_of_qubits - 1)) + 3
+    qubits = [cirq.LineQubit(i) for i in range(number_of_qubits)]
+    circuit = cirq.Circuit()
+    parameters = np.random.uniform(0, 2 * np.pi, number_of_parameters)
+
+    circuit = add_MPS_layer(circuit, qubits, parameters)
+
+    # Check first KAK decomp on qubits 2&3
+    assert isinstance(circuit.operation_at(qubits[3], 0).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[3], 1).gate, cirq.ops.common_gates.Ry)
+    assert isinstance(circuit.operation_at(qubits[3], 2).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[2], 0).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[2], 1).gate, cirq.ops.common_gates.Ry)
+    assert isinstance(circuit.operation_at(qubits[2], 2).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(
+        circuit.operation_at(qubits[2], 3).gate, cirq.ops.parity_gates.XXPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[2], 4).gate, cirq.ops.parity_gates.YYPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[2], 5).gate, cirq.ops.parity_gates.ZZPowGate
+    )
+    assert isinstance(circuit.operation_at(qubits[3], 6).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[3], 7).gate, cirq.ops.common_gates.Ry)
+    assert isinstance(circuit.operation_at(qubits[3], 8).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[2], 6).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[2], 7).gate, cirq.ops.common_gates.Ry)
+    assert isinstance(circuit.operation_at(qubits[2], 8).gate, cirq.ops.common_gates.Rz)
+
+    # Check second KAK decomp on qubits 1&2
+    assert isinstance(circuit.operation_at(qubits[2], 9).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(
+        circuit.operation_at(qubits[2], 10).gate, cirq.ops.common_gates.Ry
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[2], 11).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(circuit.operation_at(qubits[1], 0).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[1], 1).gate, cirq.ops.common_gates.Ry)
+    assert isinstance(circuit.operation_at(qubits[1], 2).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(
+        circuit.operation_at(qubits[1], 12).gate, cirq.ops.parity_gates.XXPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 13).gate, cirq.ops.parity_gates.YYPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 14).gate, cirq.ops.parity_gates.ZZPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[2], 15).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[2], 16).gate, cirq.ops.common_gates.Ry
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[2], 17).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 15).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 16).gate, cirq.ops.common_gates.Ry
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 17).gate, cirq.ops.common_gates.Rz
+    )
+
+    # Check third KAK decomp on qubits 0&1
+    assert isinstance(
+        circuit.operation_at(qubits[1], 18).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 19).gate, cirq.ops.common_gates.Ry
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 20).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(circuit.operation_at(qubits[0], 0).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(circuit.operation_at(qubits[0], 1).gate, cirq.ops.common_gates.Ry)
+    assert isinstance(circuit.operation_at(qubits[0], 2).gate, cirq.ops.common_gates.Rz)
+    assert isinstance(
+        circuit.operation_at(qubits[0], 21).gate, cirq.ops.parity_gates.XXPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[0], 22).gate, cirq.ops.parity_gates.YYPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[0], 23).gate, cirq.ops.parity_gates.ZZPowGate
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 24).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 25).gate, cirq.ops.common_gates.Ry
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[1], 26).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[0], 24).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[0], 25).gate, cirq.ops.common_gates.Ry
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[0], 26).gate, cirq.ops.common_gates.Rz
+    )
+
+    # Check final unitary on qubit 0
+    assert isinstance(
+        circuit.operation_at(qubits[0], 27).gate, cirq.ops.common_gates.Rz
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[0], 28).gate, cirq.ops.common_gates.Ry
+    )
+    assert isinstance(
+        circuit.operation_at(qubits[0], 29).gate, cirq.ops.common_gates.Rz
+    )
