@@ -1849,7 +1849,7 @@ def test_get_parameters_for_MPS_layer_explicitly_for_6_qubit_mps():
         5.618768036147711,
     ]
     parameters = get_parameters_for_MPS_layer(mps)
-    np.testing.assert_array_equal(expected_parameters, parameters)
+    np.testing.assert_array_almost_equal(expected_parameters, parameters, 14)
 
 
 @pytest.mark.parametrize("number_of_sites", range(1, 12))
