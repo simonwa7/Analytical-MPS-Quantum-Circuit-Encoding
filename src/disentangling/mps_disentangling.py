@@ -1,4 +1,4 @@
-from ..encoding.mps_encoding import get_unitary_form_of_mps_site
+from ..encoding.mps_encoding import _get_unitary_form_of_mps_site
 import pdb
 import numpy as np
 from ncon import ncon
@@ -47,7 +47,7 @@ def get_matrix_product_disentangler(mps):
     mps = copy.deepcopy(mps)
     mpd = [None] * len(mps)
     for i, mps_site in enumerate(mps):
-        mpd[i] = get_unitary_form_of_mps_site(mps_site).T.conj()
+        mpd[i] = _get_unitary_form_of_mps_site(mps_site).T.conj()
     return mpd
 
 
