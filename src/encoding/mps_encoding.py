@@ -14,6 +14,8 @@ def encode_mps_in_quantum_circuit(mps, number_of_layers=1):
 
     max_bond_dimension = max([site.shape[2] for site in mps])
     circuits = []
+    unitaries = []
+    i = 0
     disentangled_mps = mps
     while len(circuits) < number_of_layers:
         if len(circuits) > 0:
@@ -30,10 +32,16 @@ def encode_mps_in_quantum_circuit(mps, number_of_layers=1):
         bd2_mps = get_truncated_mps(disentangled_mps, 2)
         partial_circuit, _ = encode_bond_dimension_two_mps_as_quantum_circuit(bd2_mps)
         circuits.append(partial_circuit)
+        subcircuit_unitary = cirq.unitary(partial_circuit)
+        unitaries.append(
+            cirq.MatrixGate(subcircuit_unitary, name="U{}".format(i)).on(*qubits)
+        )
+        i += 1
 
     circuit = cirq.Circuit()
-    for partial_circuit in circuits[::-1]:
-        circuit += partial_circuit
+    for unitary in unitaries[::-1]:
+        circuit.append(unitary)
+        # circuit += subcircuit_op
     return circuit, qubits, circuits
 
 
