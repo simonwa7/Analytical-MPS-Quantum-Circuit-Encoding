@@ -53,7 +53,6 @@ def add_MPS_layer(circuit, qubits, parameters):
 
 def get_parameters_for_MPS_layer(mps):
     mps = copy.deepcopy(mps)
-    number_of_qubits = len(mps)
     parameters = []
 
     for site in mps[1:][::-1]:  # Reversing order of MPS and leaving out first site
