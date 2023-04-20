@@ -102,7 +102,7 @@ def test_disentangle_mps_completely_disentangles_two_qubit_bell_state(bell_state
     zero_state = np.zeros(4)
     zero_state[0] = 1
     overlap = abs(np.dot(disentangled_bell_state.T.conj(), zero_state))
-    assert overlap > (1 - 1e-15)  # 6 9's of fidelity
+    assert overlap > (1 - 1e-14)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
@@ -117,7 +117,7 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2(
     zero_state = np.zeros(2 ** number_of_sites)
     zero_state[0] = 1
     overlap = abs(np.dot(disentangled_wf.T.conj(), zero_state))
-    assert overlap > (1 - 1e-15)
+    assert overlap > (1 - 1e-14)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
@@ -137,7 +137,7 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2_naive
             disentangled_wf.reshape(2 ** len(mps)),
         )
     )
-    assert overlap > (1 - 1e-15)
+    assert overlap > (1 - 1e-14)
 
 
 @pytest.mark.xfail

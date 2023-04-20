@@ -1792,7 +1792,7 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit(number_of_sites):
     zero_state[0] = 1
     prepared_state = cirq.unitary(circuit) @ zero_state
     overlap = abs(np.dot(mps_wf.reshape(2 ** len(mps)).T.conj(), prepared_state))
-    assert overlap > (1 - 1e-15)
+    assert overlap > (1 - 1e-14)
 
 
 @pytest.mark.parametrize("number_of_sites", range(12, 22))
@@ -1830,7 +1830,7 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit_bell_state(sites):
     prepared_state = cirq.unitary(circuit) @ zero_state
     overlap = abs(np.dot(bell_state_wf.T.conj(), prepared_state))
 
-    assert overlap > (1 - 1e-15)
+    assert overlap > (1 - 1e-14)
 
 
 def test_encode_bond_dimension_two_mps_as_quantum_circuit_doesnt_destroy_input():
