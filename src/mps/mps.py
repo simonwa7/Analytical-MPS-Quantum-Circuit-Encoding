@@ -199,28 +199,46 @@ def get_wavefunction(mps):
     return (wavefunction / np.linalg.norm(wavefunction, ord=2)).reshape(2 ** len(mps))
 
 
-def get_mps(wavefunction):
+def _decompose_site_svd(tensor, site_left_bond_dim, site_right_bond_dim):
+    u, s, v = np.linalg.svd(tensor, full_matrices=False)
+    left_site = u.reshape(site_left_bond_dim, 2, site_right_bond_dim)
+    tensor = ncon([np.diag(s), v], [[-1, 1], [1, -2]])
+    return left_site, tensor
+
+
+def _decompose_site_qr(tensor, site_left_bond_dim, site_right_bond_dim):
+    q_u, r_u = np.linalg.qr(tensor)
+    left_site = q_u.reshape(site_left_bond_dim, 2, site_right_bond_dim)
+    return left_site, r_u
+
+
+def get_mps(wavefunction, tensor_decomposition_method="svd"):
     wavefunction = copy.deepcopy(wavefunction)
     number_of_sites = int(np.log2(len(wavefunction)))
-    assert wavefunction.shape == (2 ** number_of_sites,)
+    assert wavefunction.shape == (2**number_of_sites,)
     mps = [None] * number_of_sites
 
+    if tensor_decomposition_method == "svd":
+        decompose_tensor = _decompose_site_svd
+    elif tensor_decomposition_method == "qr":
+        decompose_tensor = _decompose_site_qr
+    else:
+        raise RuntimeError(
+            "Unrecognized Tensor Decomposition Method: ", tensor_decomposition_method
+        )
+
+    rest = wavefunction.reshape(1, 2**number_of_sites)
     for site_index in range(number_of_sites - 1):
-        left_bond_dim = min(2 ** (site_index), 2 ** (number_of_sites - site_index))  #
-        right_bond_dim = min(
+        site_left_bond_dim = min(2 ** (site_index), 2 ** (number_of_sites - site_index))
+        site_right_bond_dim = min(
             2 ** (site_index + 1), 2 ** (number_of_sites - site_index - 1)
         )
-        left_wavefunction_dim = min(
-            2 ** (site_index + 1), 2 ** (number_of_sites - site_index + 1)
+        rest_current_left_bond_dim = rest.shape[0] * 2
+        rest_current_right_bond_dim = int(rest.shape[1] / 2)
+        rest = rest.reshape(rest_current_left_bond_dim, rest_current_right_bond_dim)
+        mps[site_index], rest = decompose_tensor(
+            rest, site_left_bond_dim, site_right_bond_dim
         )
-        right_wavefunction_dim = min(
-            2 ** (number_of_sites - 1), 2 ** (number_of_sites - site_index - 1)
-        )
-        wavefunction = wavefunction.reshape(
-            left_wavefunction_dim, right_wavefunction_dim
-        )
-        u, s, v = np.linalg.svd(wavefunction, full_matrices=False)
-        mps[site_index] = u.reshape(left_bond_dim, 2, right_bond_dim)
-        wavefunction = ncon([np.diag(s), v], [[-1, 1], [1, -2]])
-    mps[number_of_sites - 1] = wavefunction.reshape(2, 2, 1)
-    return get_truncated_mps(mps, 2 ** number_of_sites)
+
+    mps[number_of_sites - 1] = rest.reshape(2, 2, 1)
+    return get_truncated_mps(mps, 2**number_of_sites)
