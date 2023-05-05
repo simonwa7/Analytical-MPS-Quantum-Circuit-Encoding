@@ -1,4 +1,4 @@
-from src.encoding.mps_encoding import (
+from qcmps.encoding.mps_encoding import (
     add_MPS_layer,
     get_parameters_for_MPS_layer,
     encode_bond_dimension_two_mps_as_quantum_circuit,
@@ -9,7 +9,7 @@ import numpy as np
 import copy
 from itertools import combinations
 import cirq
-from src.mps.mps import get_random_mps, get_wavefunction
+from qcmps.mps.mps import get_random_mps, get_wavefunction
 
 SEED = 1234
 np.random.seed(SEED)

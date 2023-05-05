@@ -78,8 +78,8 @@ def encode_bond_dimension_two_mps_as_quantum_circuit(mps):
 
 
 def encode_mps_in_quantum_circuit(mps, number_of_layers=1):
-    from src.mps.mps import get_truncated_mps
-    from src.disentangling.mps_disentangling import disentangle_mps
+    from qcmps.mps.mps import get_truncated_mps
+    from qcmps.disentangling.mps_disentangling import disentangle_mps
 
     mps = copy.deepcopy(mps)
     number_of_qubits = len(mps)

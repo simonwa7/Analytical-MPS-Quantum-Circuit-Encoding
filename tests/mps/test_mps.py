@@ -1,4 +1,4 @@
-from src.mps.mps import (
+from qcmps.mps.mps import (
     get_random_mps,
     truncate_singular_values,
     get_truncated_mps,
@@ -333,7 +333,7 @@ def test_get_mps_doesnt_destroy_original_mps(number_of_sites):
 
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
 def test_get_mps_integration_test(number_of_sites):
-    from src.mps.mps import get_random_mps, get_wavefunction
+    from qcmps.mps.mps import get_random_mps, get_wavefunction
 
     random_mps = get_random_mps(number_of_sites, max_bond_dimension=1024)
     wavefunction = get_wavefunction(random_mps)

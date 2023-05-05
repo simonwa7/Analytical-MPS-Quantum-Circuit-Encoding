@@ -1,4 +1,4 @@
-from src.encoding._kak_decomposition import _is_unitary, _get_unitary_form_of_mps_site
+from qcmps.encoding._kak_decomposition import _is_unitary, _get_unitary_form_of_mps_site
 import numpy as np
 import pytest
 import copy
