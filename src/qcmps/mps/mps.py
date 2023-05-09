@@ -235,10 +235,11 @@ def get_mps(wavefunction, tensor_decomposition_method="svd"):
         )
         rest_current_left_bond_dim = rest.shape[0] * 2
         rest_current_right_bond_dim = int(rest.shape[1] / 2)
+
         rest = rest.reshape(rest_current_left_bond_dim, rest_current_right_bond_dim)
         mps[site_index], rest = decompose_tensor(
             rest, site_left_bond_dim, site_right_bond_dim
         )
 
-    mps[number_of_sites - 1] = rest.reshape(2, 2, 1)
-    return get_truncated_mps(mps, 2**number_of_sites)
+    mps[-1] = rest.reshape(2, 2, 1)
+    return mps

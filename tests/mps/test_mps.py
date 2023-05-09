@@ -362,7 +362,7 @@ def test_get_mps_integration_test(number_of_sites, tensor_decomposition_method):
     np.testing.assert_array_almost_equal(wavefunction, recovered_wavefunction, 14)
 
 
-def test_get_mps_zero_state():
+def test_get_mps_zero_state_qr_decomp():
     expected_mps = np.array(
         [
             np.array([[[1.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 1.0 + 0.0j]]]),
@@ -514,12 +514,14 @@ def test_get_mps_zero_state():
                     [[0.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 0.0 + 0.0j]],
                 ]
             ),
-            np.array([[[1.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 0.0 + 0.0j]]]),
+            np.array([[[1.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 0.0 + 0.0j]]]).reshape(
+                2, 2, 1
+            ),
         ]
     )
     zero_state = np.zeros(2**6)
     zero_state[0] = 1
-    zero_state_mps = get_mps(zero_state)
+    zero_state_mps = get_mps(zero_state, tensor_decomposition_method="qr")
     assert len(zero_state_mps) == len(expected_mps)
     for site, expected_site in zip(zero_state_mps, expected_mps):
         np.testing.assert_almost_equal(site, expected_site, 16)
