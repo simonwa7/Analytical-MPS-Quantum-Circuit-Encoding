@@ -322,7 +322,7 @@ def test_get_mps_bell_state(tensor_decomposition_method):
                 [[[1.0, 0.0], [0.0, 1.0]]],
             ),
             np.asarray(
-                [[[0.5], [0.0]], [[0.0], [0.5]]],
+                [[[1/np.sqrt(2)], [0.0]], [[0.0], [1/np.sqrt(2)]]],
             ),
         ],
     )
