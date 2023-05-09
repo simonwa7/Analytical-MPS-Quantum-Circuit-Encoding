@@ -342,8 +342,6 @@ def test_get_mps_doesnt_destroy_original_mps(number_of_sites):
 
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
 def test_get_mps_integration_test(number_of_sites):
-    from qcmps.mps.mps import get_random_mps, get_wavefunction
-
     random_mps = get_random_mps(number_of_sites, max_bond_dimension=1024)
     wavefunction = get_wavefunction(random_mps)
     recovered_mps = get_mps(wavefunction)
@@ -352,3 +350,16 @@ def test_get_mps_integration_test(number_of_sites):
     recovered_wavefunction = get_wavefunction(recovered_mps)
     assert wavefunction.shape == recovered_wavefunction.shape
     np.testing.assert_array_almost_equal(wavefunction, recovered_wavefunction, 14)
+
+
+def test_integration_test_separable_state_can_be_reduced_to_bond_dimension_1_with_perfect_fidelity():
+    original_state = np.zeros(2**6)
+    original_state[5] = 1
+
+    mps = get_mps(original_state)
+    truncated_mps = get_truncated_mps(mps, 1)
+
+    truncated_state = get_wavefunction(truncated_mps)
+
+    fidelity = abs(np.dot(original_state.T.conj(), truncated_state))
+    np.testing.assert_almost_equal(fidelity, 1, 14)
