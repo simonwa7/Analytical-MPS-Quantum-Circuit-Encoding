@@ -212,7 +212,7 @@ def _decompose_site_qr(tensor, site_left_bond_dim, site_right_bond_dim):
     return left_site, r_u
 
 
-def get_mps(wavefunction, tensor_decomposition_method="svd"):
+def get_mps(wavefunction, tensor_decomposition_method="qr"):
     wavefunction = copy.deepcopy(wavefunction)
     number_of_sites = int(np.log2(len(wavefunction)))
     assert wavefunction.shape == (2**number_of_sites,)
