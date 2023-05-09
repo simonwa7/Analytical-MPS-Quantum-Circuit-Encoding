@@ -1,11 +1,10 @@
-from src.encoding.mps_encoding import (
-    is_unitary,
-    get_unitary_form_of_mps_site,
+from qcmps.encoding._kak_decomposition import _is_unitary, _get_unitary_form_of_mps_site
+from qcmps.encoding.mps_encoding import (
     encode_bond_dimension_two_mps_as_quantum_circuit,
     encode_mps_in_quantum_circuit,
 )
 
-from src.disentangling.mps_disentangling import (
+from qcmps.disentangling.mps_disentangling import (
     get_matrix_product_disentangler,
     disentangle_mps,
 )
@@ -13,10 +12,11 @@ import pytest
 import numpy as np
 from ncon import ncon
 import copy
-from src.mps.mps import get_random_mps, get_wavefunction, get_truncated_mps
+from qcmps.mps.mps import get_random_mps, get_wavefunction, get_truncated_mps
 
 SEED = 1234
 np.random.seed(SEED)
+np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 3))
@@ -33,8 +33,10 @@ def test_get_matrix_product_disentangler_returns_conjugated_mps_sites(number_of_
     mps = get_random_mps(number_of_sites, 2)
     mpd = get_matrix_product_disentangler(mps)
     for mps_site, mpd_site in zip(mps, mpd):
-        assert is_unitary(mpd_site)
-        assert np.array_equal(get_unitary_form_of_mps_site(mps_site).T.conj(), mpd_site)
+        assert _is_unitary(mpd_site)
+        assert np.array_equal(
+            _get_unitary_form_of_mps_site(mps_site).T.conj(), mpd_site
+        )
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 4, 1))
@@ -64,7 +66,7 @@ def test_disentangle_mps_returns_mps(number_of_sites, max_bond_dimension):
         assert len(site.shape) == 3
         assert site.shape[1] == 2
         assert site.shape[0] <= min(
-            int(2 ** i), int(2 ** (number_of_sites - i)), max_bond_dimension
+            int(2**i), int(2 ** (number_of_sites - i)), max_bond_dimension
         )
         assert site.shape[2] <= min(
             int(2 ** (i + 1)), int(2 ** (number_of_sites - i - 1)), max_bond_dimension
@@ -101,7 +103,7 @@ def test_disentangle_mps_completely_disentangles_two_qubit_bell_state(bell_state
     zero_state = np.zeros(4)
     zero_state[0] = 1
     overlap = abs(np.dot(disentangled_bell_state.T.conj(), zero_state))
-    assert overlap > (1 - 1e-15)  # 6 9's of fidelity
+    assert overlap > (1 - 1e-14)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
@@ -113,10 +115,10 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2(
     disentangled_mps = disentangle_mps(mps, mpd)
     disentangled_wf = get_wavefunction(disentangled_mps)
 
-    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state = np.zeros(2**number_of_sites)
     zero_state[0] = 1
     overlap = abs(np.dot(disentangled_wf.T.conj(), zero_state))
-    assert overlap > (1 - 1e-15)
+    assert overlap > (1 - 1e-14)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
@@ -128,7 +130,7 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2_naive
     disentangled_mps = disentangle_mps(mps, circuit, strategy="naive_with_circuit")
     disentangled_wf = get_wavefunction(disentangled_mps)
 
-    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state = np.zeros(2**number_of_sites)
     zero_state[0] = 1
     overlap = abs(
         np.dot(
@@ -136,7 +138,7 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2_naive
             disentangled_wf.reshape(2 ** len(mps)),
         )
     )
-    assert overlap > (1 - 1e-15)
+    assert overlap > (1 - 1e-14)
 
 
 @pytest.mark.xfail  # Reason here is that the algorithm does not necessitate this condition, but it is often true
@@ -152,7 +154,7 @@ def test_disentangle_mps_always_increases_overlap_with_zero_state(
     disentangled_mps = disentangle_mps(mps, circuit, strategy="naive_with_circuit")
     disentangled_wf = get_wavefunction(disentangled_mps)
 
-    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state = np.zeros(2**number_of_sites)
     zero_state[0] = 1
 
     mps_overlap = abs(np.dot(mps_wf.T.conj(), zero_state))

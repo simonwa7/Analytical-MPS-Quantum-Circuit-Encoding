@@ -1,4 +1,4 @@
-from ..encoding.mps_encoding import get_unitary_form_of_mps_site
+from ..encoding.mps_encoding import _get_unitary_form_of_mps_site
 import pdb
 import numpy as np
 from ncon import ncon
@@ -16,8 +16,8 @@ def disentangle_mps(mps, mpd, strategy="naive"):
 
 
 def _disentangle_mps_naive(mps, mpd):
-    from src.mps.mps import get_wavefunction, get_truncated_mps, get_mps
-    from src.encoding.mps_encoding import (
+    from qcmps.mps.mps import get_wavefunction, get_truncated_mps, get_mps
+    from qcmps.encoding.mps_encoding import (
         encode_bond_dimension_two_mps_as_quantum_circuit,
     )
 
@@ -32,7 +32,7 @@ def _disentangle_mps_naive(mps, mpd):
 
 
 def _disentangle_mps_naive_with_circuit(mps, circuit):
-    from src.mps.mps import get_wavefunction, get_mps
+    from qcmps.mps.mps import get_wavefunction, get_mps
 
     mps_wf = get_wavefunction(mps)
     disentangled_wavefunction = _disentangle_wavefunction_with_circuit(mps_wf, circuit)
@@ -58,7 +58,7 @@ def get_matrix_product_disentangler(mps):
     mps = copy.deepcopy(mps)
     mpd = [None] * len(mps)
     for i, mps_site in enumerate(mps):
-        mpd[i] = get_unitary_form_of_mps_site(mps_site).T.conj()
+        mpd[i] = _get_unitary_form_of_mps_site(mps_site).T.conj()
     return mpd
 
 

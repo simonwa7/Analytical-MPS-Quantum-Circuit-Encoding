@@ -1,4 +1,4 @@
-from src.mps.mps import (
+from qcmps.mps.mps import (
     get_random_mps,
     truncate_singular_values,
     get_truncated_mps,
@@ -12,6 +12,7 @@ import copy
 
 SEED = 1234
 np.random.seed(SEED)
+np.warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 2))
@@ -34,7 +35,7 @@ def test_shape_get_random_mps_even(number_of_sites, input_max_bond_dimension):
         assert mps[-i - 1].shape[2] <= max_possible_bond_dimension
 
         bond_index = int(i % (number_of_sites / 2))
-        left_bond_dimension = min(input_max_bond_dimension, 2 ** bond_index)
+        left_bond_dimension = min(input_max_bond_dimension, 2**bond_index)
         right_bond_dimension = min(input_max_bond_dimension, 2 ** (bond_index + 1))
         assert site.shape == (left_bond_dimension, 2, right_bond_dimension)
         assert mps[-i - 1].shape == (right_bond_dimension, 2, left_bond_dimension)
@@ -60,7 +61,7 @@ def test_shape_get_random_mps_odd(number_of_sites, input_max_bond_dimension):
         assert mps[-i - 1].shape[2] <= max_possible_bond_dimension
 
         bond_index = int(i % (number_of_sites / 2))
-        left_bond_dimension = min(input_max_bond_dimension, 2 ** bond_index)
+        left_bond_dimension = min(input_max_bond_dimension, 2**bond_index)
         right_bond_dimension = min(input_max_bond_dimension, 2 ** (bond_index + 1))
         assert site.shape == (left_bond_dimension, 2, right_bond_dimension)
         assert mps[-i - 1].shape == (right_bond_dimension, 2, left_bond_dimension)
@@ -68,7 +69,7 @@ def test_shape_get_random_mps_odd(number_of_sites, input_max_bond_dimension):
     bond_index = int(number_of_sites / 2)
     site = mps[bond_index]
     assert len(site.shape) == 3
-    bond_dimension = min(input_max_bond_dimension, 2 ** bond_index)
+    bond_dimension = min(input_max_bond_dimension, 2**bond_index)
     assert site.shape[0] == bond_dimension
     assert site.shape[1] == 2
     assert site.shape[2] == bond_dimension
@@ -215,7 +216,7 @@ def test_get_wavefunction_size(number_of_sites):
     mps = get_random_mps(number_of_sites, max_bond_dimension=1024)
     wavefunction = get_wavefunction(mps)
 
-    assert wavefunction.shape == ((2 ** number_of_sites),)
+    assert wavefunction.shape == ((2**number_of_sites),)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 1))
@@ -228,13 +229,17 @@ def test_get_wavefunction_normalizes(number_of_sites):
 
 
 def test_get_wavefunction_bell_state():
-    bell_state_mps = np.array(
+    bell_state_mps = np.asarray(
         [
-            np.array([[[1.0, 0.0], [0.0, 1.0]]]),
-            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
-        ]
+            np.asarray(
+                [[[1.0, 0.0], [0.0, 1.0]]],
+            ),
+            np.asarray(
+                [[[0.5], [0.0]], [[0.0], [0.5]]],
+            ),
+        ],
     )
-    bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
+    bell_state = np.asarray([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
     wavefunction = get_wavefunction(bell_state_mps)
     np.testing.assert_array_almost_equal(wavefunction, bell_state, 1e-16)
 
@@ -299,47 +304,254 @@ def test_integration_for_mps_truncation_accuracy(number_of_sites):
             accuracies.append(one_norm)
 
 
+@pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
-def test_get_mps_size(number_of_sites):
-    wavefunction = np.random.uniform(0, 1, 2 ** number_of_sites)
+def test_get_mps_size(number_of_sites, tensor_decomposition_method):
+    wavefunction = np.random.uniform(0, 1, 2**number_of_sites)
     wavefunction /= sum(wavefunction)
-    mps = get_mps(wavefunction)
+    mps = get_mps(wavefunction, tensor_decomposition_method=tensor_decomposition_method)
 
     assert len(mps) == number_of_sites
 
 
-def test_get_mps_bell_state():
-    expected_mps = np.array(
+@pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
+def test_get_mps_bell_state(tensor_decomposition_method):
+    expected_mps = np.asarray(
         [
-            np.array([[[1.0, 0.0], [0.0, 1.0]]]),
-            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
-        ]
+            np.asarray(
+                [[[1.0, 0.0], [0.0, 1.0]]],
+            ),
+            np.asarray(
+                [[[1 / np.sqrt(2)], [0.0]], [[0.0], [1 / np.sqrt(2)]]],
+            ),
+        ],
     )
-    bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
-    bell_state_mps = get_mps(bell_state)
+    bell_state = np.asarray([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
+    bell_state_mps = get_mps(
+        bell_state, tensor_decomposition_method=tensor_decomposition_method
+    )
     assert len(bell_state_mps) == len(expected_mps)
     for site, expected_site in zip(bell_state_mps, expected_mps):
         np.testing.assert_almost_equal(site, expected_site, 16)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
-def test_get_mps_doesnt_destroy_original_mps(number_of_sites):
-    wavefunction = np.random.uniform(0, 1, 2 ** number_of_sites)
+@pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
+def test_get_mps_doesnt_destroy_original_mps(
+    number_of_sites, tensor_decomposition_method
+):
+    wavefunction = np.random.uniform(0, 1, 2**number_of_sites)
     wavefunction /= sum(wavefunction)
     copied_wavefunction = copy.deepcopy(wavefunction)
-    get_mps(wavefunction)
+    get_mps(wavefunction, tensor_decomposition_method=tensor_decomposition_method)
     assert np.array_equal(wavefunction, copied_wavefunction)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
-def test_get_mps_integration_test(number_of_sites):
-    from src.mps.mps import get_random_mps, get_wavefunction
-
+@pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
+def test_get_mps_integration_test(number_of_sites, tensor_decomposition_method):
     random_mps = get_random_mps(number_of_sites, max_bond_dimension=1024)
     wavefunction = get_wavefunction(random_mps)
-    recovered_mps = get_mps(wavefunction)
+    recovered_mps = get_mps(
+        wavefunction, tensor_decomposition_method=tensor_decomposition_method
+    )
     assert len(random_mps) == len(recovered_mps)
 
     recovered_wavefunction = get_wavefunction(recovered_mps)
     assert wavefunction.shape == recovered_wavefunction.shape
     np.testing.assert_array_almost_equal(wavefunction, recovered_wavefunction, 14)
+
+
+def test_get_mps_zero_state_qr_decomp():
+    expected_mps = np.array(
+        [
+            np.array([[[1.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 1.0 + 0.0j]]]),
+            np.array(
+                [
+                    [
+                        [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j],
+                    ],
+                ]
+            ),
+            np.array(
+                [
+                    [
+                        [
+                            1.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                        ],
+                        [
+                            0.0 + 0.0j,
+                            1.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                        ],
+                    ],
+                    [
+                        [
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            1.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                        ],
+                        [
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            1.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                        ],
+                    ],
+                    [
+                        [
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            1.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                        ],
+                        [
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            1.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                        ],
+                    ],
+                    [
+                        [
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            1.0 + 0.0j,
+                            0.0 + 0.0j,
+                        ],
+                        [
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            0.0 + 0.0j,
+                            1.0 + 0.0j,
+                        ],
+                    ],
+                ]
+            ),
+            np.array(
+                [
+                    [
+                        [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                    [
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                        [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+                    ],
+                ]
+            ),
+            np.array(
+                [
+                    [[1.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 1.0 + 0.0j]],
+                    [[0.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 0.0 + 0.0j]],
+                    [[0.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 0.0 + 0.0j]],
+                    [[0.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 0.0 + 0.0j]],
+                ]
+            ),
+            np.array([[[1.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 0.0 + 0.0j]]]).reshape(
+                2, 2, 1
+            ),
+        ]
+    )
+    zero_state = np.zeros(2**6)
+    zero_state[0] = 1
+    zero_state_mps = get_mps(zero_state, tensor_decomposition_method="qr")
+    assert len(zero_state_mps) == len(expected_mps)
+    for site, expected_site in zip(zero_state_mps, expected_mps):
+        np.testing.assert_almost_equal(site, expected_site, 16)
+
+
+def test_integration_test_separable_state_can_be_reduced_to_bond_dimension_1_with_perfect_fidelity_qr():
+    original_state = np.zeros(2**6)
+    original_state[5] = 1
+
+    mps = get_mps(original_state, tensor_decomposition_method="qr")
+    mps = get_truncated_mps(mps, 16)
+    mps = get_truncated_mps(mps, 8)
+    mps = get_truncated_mps(mps, 4)
+    truncated_mps = get_truncated_mps(mps, 1)
+
+    truncated_state = get_wavefunction(truncated_mps)
+
+    fidelity = abs(np.dot(original_state.T.conj(), truncated_state))
+    np.testing.assert_almost_equal(fidelity, 1, 14)
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
+@pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
+def test_integration_test_get_mps_is_normalized(
+    number_of_sites, tensor_decomposition_method
+):
+    random_mps = get_random_mps(number_of_sites, max_bond_dimension=1024, complex=True)
+    wavefunction = get_wavefunction(random_mps)
+    mps = get_mps(wavefunction, tensor_decomposition_method=tensor_decomposition_method)
+    mps_wf = get_wavefunction(mps)
+
+    norm = abs(np.dot(mps_wf.T.conj(), mps_wf))
+    np.testing.assert_almost_equal(norm, 1, 15)
