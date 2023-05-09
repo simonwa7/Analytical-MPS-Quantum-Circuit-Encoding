@@ -196,6 +196,6 @@ def test_that_matrix_product_disentanglers_for_full_circuit_are_consistent_up_to
     gp_unitary = _get_disentangler_from_circuit(gp_circuit)
 
     np.testing.assert_array_almost_equal(unitary, gp_unitary, 14)
-    # identity = np.eye(2 ** number_of_sites)
-    # global_phase = 1 / unitary.T.conj()[0][0]
-    # np.testing.assert_array_almost_equal(global_phase * unitary.T.conj(), identity, 14)
+    identity = np.eye(2**number_of_sites)
+    global_phase = 1 / unitary.T.conj()[0][0]
+    np.testing.assert_array_almost_equal(global_phase * unitary.T.conj(), identity, 14)
