@@ -7,16 +7,22 @@ from qcmps.encoding.mps_encoding import (
 from qcmps.disentangling.mps_disentangling import (
     get_matrix_product_disentangler,
     disentangle_mps,
+    _get_disentangler_from_circuit,
+)
+from qcmps.mps.mps import (
+    get_random_mps,
+    get_wavefunction,
+    get_truncated_mps,
+    get_mps,
 )
 import pytest
 import numpy as np
 from ncon import ncon
 import copy
-from qcmps.mps.mps import get_random_mps, get_wavefunction, get_truncated_mps
 
 SEED = 1234
 np.random.seed(SEED)
-np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
+np.warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 3))
@@ -141,7 +147,7 @@ def test_disentangle_mps_completely_disentangles_mps_with_bond_dimension_2_naive
     assert overlap > (1 - 1e-14)
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail  # Reason here is that the algorithm does not necessitate this condition, but it is often true
 @pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
 @pytest.mark.parametrize("max_bond_dimension", range(4, 1000, 57))
 def test_disentangle_mps_always_increases_overlap_with_zero_state(
@@ -160,3 +166,36 @@ def test_disentangle_mps_always_increases_overlap_with_zero_state(
     mps_overlap = abs(np.dot(mps_wf.T.conj(), zero_state))
     disentangled_overlap = abs(np.dot(disentangled_wf.T.conj(), zero_state))
     assert disentangled_overlap > mps_overlap
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 10, 1))
+def test_that_matrix_product_disentanglers_for_al_zeros_is_identity(number_of_sites):
+    all_zeros = np.zeros(2**number_of_sites, dtype="complex128")
+    all_zeros[0] = 1
+
+    mps = get_mps(all_zeros)
+    circuit, _, _ = encode_mps_in_quantum_circuit(mps)
+    unitary = _get_disentangler_from_circuit(circuit)
+    identity = np.eye(2**number_of_sites)
+    global_phase = 1 / unitary.T.conj()[0][0]
+    np.testing.assert_array_almost_equal(global_phase * unitary.T.conj(), identity, 14)
+
+
+def test_that_matrix_product_disentanglers_for_full_circuit_are_consistent_up_to_a_global_phase():
+    number_of_sites = 4
+    all_zeros = np.zeros(2**number_of_sites, dtype="complex128")
+    all_zeros[0] = 1
+    global_phase_all_zeros = np.dot(all_zeros, np.exp(1.1j))
+
+    mps = get_mps(all_zeros)
+    circuit, _, _ = encode_mps_in_quantum_circuit(mps)
+    unitary = _get_disentangler_from_circuit(circuit)
+
+    gp_mps = get_mps(global_phase_all_zeros)
+    gp_circuit, _, _ = encode_mps_in_quantum_circuit(gp_mps)
+    gp_unitary = _get_disentangler_from_circuit(gp_circuit)
+
+    np.testing.assert_array_almost_equal(unitary, gp_unitary, 14)
+    identity = np.eye(2**number_of_sites)
+    global_phase = 1 / unitary.T.conj()[0][0]
+    np.testing.assert_array_almost_equal(global_phase * unitary.T.conj(), identity, 14)

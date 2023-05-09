@@ -35,8 +35,19 @@ def _disentangle_mps_naive_with_circuit(mps, circuit):
     from qcmps.mps.mps import get_wavefunction, get_mps
 
     mps_wf = get_wavefunction(mps)
-    disentangling_operator = cirq.unitary(circuit).T.conj()
-    return get_mps((disentangling_operator @ mps_wf).reshape(len(mps_wf)))
+    disentangled_wavefunction = _disentangle_wavefunction_with_circuit(mps_wf, circuit)
+    return get_mps(disentangled_wavefunction)
+
+
+def _get_disentangler_from_circuit(circuit):
+    """Convert a quantum circuit into a "full" matrix product disentangler which is of size 2**n x 2**n"""
+    return cirq.unitary(circuit).T.conj()
+
+
+def _disentangle_wavefunction_with_circuit(wavefunction, circuit):
+    disentangling_operator = _get_disentangler_from_circuit(circuit)
+    disentangled_wavefunction = np.dot(disentangling_operator, wavefunction)
+    return disentangled_wavefunction
 
 
 def _disentangle_mps_tensor(mps, mpd):
