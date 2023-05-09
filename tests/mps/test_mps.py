@@ -1,4 +1,4 @@
-from src.mps.mps import (
+from qcmps.mps.mps import (
     get_random_mps,
     truncate_singular_values,
     get_truncated_mps,
@@ -12,6 +12,7 @@ import copy
 
 SEED = 1234
 np.random.seed(SEED)
+np.warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 2))
@@ -228,13 +229,17 @@ def test_get_wavefunction_normalizes(number_of_sites):
 
 
 def test_get_wavefunction_bell_state():
-    bell_state_mps = np.array(
+    bell_state_mps = np.asarray(
         [
-            np.array([[[1.0, 0.0], [0.0, 1.0]]]),
-            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
-        ]
+            np.asarray(
+                [[[1.0, 0.0], [0.0, 1.0]]],
+            ),
+            np.asarray(
+                [[[0.5], [0.0]], [[0.0], [0.5]]],
+            ),
+        ],
     )
-    bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
+    bell_state = np.asarray([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
     wavefunction = get_wavefunction(bell_state_mps)
     np.testing.assert_array_almost_equal(wavefunction, bell_state, 1e-16)
 
@@ -311,13 +316,17 @@ def test_get_mps_size(number_of_sites, tensor_decomposition_method):
 
 @pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
 def test_get_mps_bell_state(tensor_decomposition_method):
-    expected_mps = np.array(
+    expected_mps = np.asarray(
         [
-            np.array([[[1.0, 0.0], [0.0, 1.0]]]),
-            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
-        ]
+            np.asarray(
+                [[[1.0, 0.0], [0.0, 1.0]]],
+            ),
+            np.asarray(
+                [[[0.5], [0.0]], [[0.0], [0.5]]],
+            ),
+        ],
     )
-    bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
+    bell_state = np.asarray([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
     bell_state_mps = get_mps(
         bell_state, tensor_decomposition_method=tensor_decomposition_method
     )
@@ -341,8 +350,6 @@ def test_get_mps_doesnt_destroy_original_mps(
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
 @pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
 def test_get_mps_integration_test(number_of_sites, tensor_decomposition_method):
-    from src.mps.mps import get_random_mps, get_wavefunction
-
     random_mps = get_random_mps(number_of_sites, max_bond_dimension=1024)
     wavefunction = get_wavefunction(random_mps)
     recovered_mps = get_mps(
@@ -516,3 +523,16 @@ def test_get_mps_zero_state():
     assert len(zero_state_mps) == len(expected_mps)
     for site, expected_site in zip(zero_state_mps, expected_mps):
         np.testing.assert_almost_equal(site, expected_site, 16)
+
+
+def test_integration_test_separable_state_can_be_reduced_to_bond_dimension_1_with_perfect_fidelity():
+    original_state = np.zeros(2**6)
+    original_state[5] = 1
+
+    mps = get_mps(original_state)
+    truncated_mps = get_truncated_mps(mps, 1)
+
+    truncated_state = get_wavefunction(truncated_mps)
+
+    fidelity = abs(np.dot(original_state.T.conj(), truncated_state))
+    np.testing.assert_almost_equal(fidelity, 1, 14)

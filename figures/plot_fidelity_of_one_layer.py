@@ -1,5 +1,5 @@
-from src.mps.mps import get_random_mps, get_wavefunction
-from src.encoding.mps_encoding import encode_mps_in_quantum_circuit
+from qcmps.mps.mps import get_random_mps, get_wavefunction
+from qcmps.encoding.mps_encoding import encode_mps_in_quantum_circuit
 import numpy as np
 import cirq
 
