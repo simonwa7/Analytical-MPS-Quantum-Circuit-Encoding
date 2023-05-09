@@ -322,7 +322,7 @@ def test_get_mps_bell_state(tensor_decomposition_method):
                 [[[1.0, 0.0], [0.0, 1.0]]],
             ),
             np.asarray(
-                [[[1/np.sqrt(2)], [0.0]], [[0.0], [1/np.sqrt(2)]]],
+                [[[1 / np.sqrt(2)], [0.0]], [[0.0], [1 / np.sqrt(2)]]],
             ),
         ],
     )
@@ -538,3 +538,17 @@ def test_integration_test_separable_state_can_be_reduced_to_bond_dimension_1_wit
 
     fidelity = abs(np.dot(original_state.T.conj(), truncated_state))
     np.testing.assert_almost_equal(fidelity, 1, 14)
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
+@pytest.mark.parametrize("tensor_decomposition_method", ["qr", "svd"])
+def test_integration_test_get_mps_is_normalized(
+    number_of_sites, tensor_decomposition_method
+):
+    random_mps = get_random_mps(number_of_sites, max_bond_dimension=1024, complex=True)
+    wavefunction = get_wavefunction(random_mps)
+    mps = get_mps(wavefunction, tensor_decomposition_method=tensor_decomposition_method)
+    mps_wf = get_wavefunction(mps)
+
+    norm = abs(np.dot(mps_wf.T.conj(), mps_wf))
+    np.testing.assert_almost_equal(norm, 1, 15)
