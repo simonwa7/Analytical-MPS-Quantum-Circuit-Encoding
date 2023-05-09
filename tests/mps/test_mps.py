@@ -527,11 +527,11 @@ def test_get_mps_zero_state_qr_decomp():
         np.testing.assert_almost_equal(site, expected_site, 16)
 
 
-def test_integration_test_separable_state_can_be_reduced_to_bond_dimension_1_with_perfect_fidelity():
+def test_integration_test_separable_state_can_be_reduced_to_bond_dimension_1_with_perfect_fidelity_qr():
     original_state = np.zeros(2**6)
     original_state[5] = 1
 
-    mps = get_mps(original_state)
+    mps = get_mps(original_state, tensor_decomposition_method="qr")
     mps = get_truncated_mps(mps, 8)
     truncated_mps = get_truncated_mps(mps, 1)
 
