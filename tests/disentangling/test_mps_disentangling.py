@@ -16,6 +16,7 @@ from qcmps.mps.mps import get_random_mps, get_wavefunction, get_truncated_mps
 
 SEED = 1234
 np.random.seed(SEED)
+np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 3))

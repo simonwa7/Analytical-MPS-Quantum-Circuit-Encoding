@@ -5,6 +5,7 @@ import copy
 
 SEED = 1234
 np.random.seed(SEED)
+np.warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
 @pytest.mark.parametrize(
@@ -14,9 +15,15 @@ np.random.seed(SEED)
         np.eye(2),
         np.eye(3),
         np.eye(4),
-        np.asarray([[0, 1], [1, 0]]),
-        np.asarray([[0, -1j], [1j, 0]]),
-        np.asarray([[1, 0], [0, -1]]),
+        np.asarray(
+            [[0, 1], [1, 0]],
+        ),
+        np.asarray(
+            [[0, -1j], [1j, 0]],
+        ),
+        np.asarray(
+            [[1, 0], [0, -1]],
+        ),
     ],
 )
 def test_matrix_is_unitary(matrix):
@@ -30,8 +37,13 @@ def test_matrix_is_unitary(matrix):
         np.zeros((2, 2)),
         np.zeros((3, 3)),
         np.zeros((4, 4)),
-        (1 / np.sqrt(2)) * np.asarray([[1, 1], [1, 1]]),
-        np.asarray([[0, 1j], [0, -1j]]),
+        (1 / np.sqrt(2))
+        * np.asarray(
+            [[1, 1], [1, 1]],
+        ),
+        np.asarray(
+            [[0, 1j], [0, -1j]],
+        ),
     ],
 )
 def test_matrix_is_not_unitary(matrix):
@@ -45,9 +57,15 @@ def test_matrix_is_not_unitary(matrix):
         np.eye(2),
         np.eye(3),
         np.eye(4),
-        np.asarray([[0, 1], [1, 0]]),
-        np.asarray([[0, -1j], [1j, 0]]),
-        np.asarray([[1, 0], [0, -1]]),
+        np.asarray(
+            [[0, 1], [1, 0]],
+        ),
+        np.asarray(
+            [[0, -1j], [1j, 0]],
+        ),
+        np.asarray(
+            [[1, 0], [0, -1]],
+        ),
     ],
 )
 def test_matrix_is_unitary_doesnt_destroy_input(matrix):
@@ -61,25 +79,25 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
     [
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [0.00879084 - 0.82593794j, 0.54831125 + 0.13078228j],
                             [0.15806571 - 0.54107713j, -0.72178992 - 0.40158447j],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[-0.68228437 + 0.0j], [-0.59976315 + 0.14825111j]],
                         [[0.05340337 + 0.0j], [-0.05725301 + 0.01415196j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -91,9 +109,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.26489454 + 1.76553312e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.67625691 + 0.06045265j, -0.35059608 - 0.62994351j],
@@ -103,19 +121,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.0368319 + 0.01559575j, -0.07875288 - 0.15746212j],
                             [0.0498018 + 0.01758143j, -0.12434149 - 0.03202334j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[-0.75564449 + 0.0j], [-0.62376404 - 0.09858886j]],
                         [[-0.00975735 + 0.0j], [0.01153223 + 0.00182272j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -127,9 +145,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.51862612 + 6.88431374e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.1519075 - 0.72123781j, 0.30311082 - 0.53465278j],
@@ -139,9 +157,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.08530453 - 0.16781612j, 0.08277328 + 0.20547359j],
                             [-0.14379074 - 0.09783381j, 0.08303049 - 0.20461936j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -160,19 +178,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.06259122 - 7.19771555e-02j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[0.67633078 + 0.0j], [0.6831207 - 0.04982997j]],
                         [[0.02662667 + 0.0j], [-0.02622249 + 0.00191279j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -184,9 +202,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.67693528 + 4.30368567e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.68089719 - 0.19459216j, 0.47035717 + 0.47242776j],
@@ -196,9 +214,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.00394559 - 0.23433654j, 0.14347553 - 0.35492969j],
                             [0.03615906 - 0.20552596j, -0.10223147 + 0.00945462j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.51272901 - 0.44591927j, 0.63478602 + 0.36666965j],
@@ -208,9 +226,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.01117279 - 0.00772075j, 0.00238159 + 0.01164435j],
                             [-0.0061602 + 0.00207711j, 0.02845668 + 0.00360468j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -232,9 +250,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.15854077 + 1.59492104e-01j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.72918925 + 0.00000000e00j],
@@ -244,21 +262,21 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.01350641 + 0.00000000e00j],
                             [0.01504977 + 4.85443949e-05j],
                         ],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.69039636 + 0.0j, 0.72343131 + 0.0j],
                             [-0.72200435 + 0.04541572j, -0.68903456 + 0.04334184j],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.6593401 - 0.33232498j, 0.55450632 + 0.36827845j],
@@ -268,9 +286,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.08641424 + 0.0866833j, 0.0576578 - 0.00984696j],
                             [0.01471323 - 0.03178988j, -0.08445647 - 0.0580043j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.53160504 - 0.57513675j, 0.41019508 - 0.46127657j],
@@ -280,9 +298,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.00352315 + 0.00462317j, 0.0791576 + 0.0614329j],
                             [0.02130506 + 0.02135251j, 0.0633095 + 0.0256863j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.48725677 - 0.49756225j, 0.12542789 + 0.53673707j],
@@ -292,9 +310,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.19963843 + 0.19338305j, -0.19086599 + 0.42708093j],
                             [0.11239741 + 0.19274256j, -0.38378203 - 0.1188372j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -316,19 +334,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.00095277 - 6.06682454e-02j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[0.44838701 + 0.0j], [0.82571211 - 0.06903894j]],
                         [[-0.05089167 + 0.0j], [0.02744388 - 0.00229462j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -340,9 +358,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.85612272 + 2.16013251e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.49600489 + 0.17467359j, 0.58202036 + 0.37594991j],
@@ -352,9 +370,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.16971391 - 0.34707343j, 0.42346618 - 0.2443191j],
                             [-0.11864059 - 0.07276094j, 0.4616457 - 0.10438274j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.49022097 - 0.61853152j, 0.1174592 - 0.09964756j],
@@ -364,9 +382,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.27279714 + 0.35085083j, -0.13518933 + 0.06452839j],
                             [0.12087348 + 0.16900983j, -0.30801581 + 0.46403383j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.37257874 - 0.53550276j, 0.6149652 - 0.42753237j],
@@ -376,9 +394,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.01727949 + 0.04063624j, 0.10651041 - 0.12609248j],
                             [0.02254584 + 0.03399962j, 0.07260709 - 0.08074447j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.57345049 - 0.73624701j, 0.04751928 - 0.35107082j],
@@ -388,9 +406,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.03185635 - 0.02268155j, -0.0211324 + 0.05040412j],
                             [-0.03359447 - 0.02866513j, -0.00969096 - 0.03926681j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -412,19 +430,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.18162202 - 8.64584218e-03j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[-0.74374854 + 0.0j], [-0.61522115 + 0.05044273j]],
                         [[-0.02136808 + 0.0j], [0.02565964 - 0.00210387j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -436,9 +454,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.25093971 + 1.15617221e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.38916936 - 0.63293278j, 0.49235663 - 0.18595621j],
@@ -448,9 +466,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.14313082 + 0.29041074j, 0.17782929 + 0.07042165j],
                             [0.15863599 + 0.15207002j, -0.06971925 + 0.34321582j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.85931187 - 0.21930206j, 0.36802571 - 0.27079042j],
@@ -460,9 +478,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.01847954 + 0.02993527j, 0.0602839 + 0.0065425j],
                             [-0.01873011 - 0.0594205j, 0.02767318 + 0.00848096j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.42698783 - 0.21416289j, 0.64579497 - 0.21042899j],
@@ -472,9 +490,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.33978156 + 0.05898076j, 0.16150389 + 0.23854662j],
                             [-0.0280794 + 0.01714936j, 0.52469293 + 0.18465894j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.14446909 - 0.78303072j, 0.38177657 + 0.18129146j],
@@ -484,9 +502,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.06931483 + 0.38624822j, 0.25655634 + 0.4167283j],
                             [0.04421302 + 0.19695491j, -0.30359744 + 0.23335422j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -508,9 +526,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.02285981 - 1.09334163e-03j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -532,19 +550,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.03277715 - 2.64942194e-02j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[0.75989596 + 0.0j], [0.54184297 - 0.25300801j]],
                         [[-0.02042084 + 0.0j], [0.02351231 - 0.01097883j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -556,9 +574,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.83801134 - 4.02380781e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.5379616 - 0.19887376j, 0.6648225 + 0.39655989j],
@@ -568,9 +586,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.00420029 + 0.00890096j, 0.04919099 + 0.17130079j],
                             [-0.00358141 - 0.02013046j, 0.1902178 + 0.18760854j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.56968628 - 0.65286643j, 0.33197727 + 0.37227912j],
@@ -580,9 +598,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.00179709 - 0.01842831j, -0.02250614 - 0.01366854j],
                             [0.00566688 - 0.0047713j, -0.01787134 + 0.00693174j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.50233604 - 0.3298963j, 0.57608352 + 0.19007422j],
@@ -592,9 +610,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.31178349 - 0.145126j, -0.57225373 + 0.26338542j],
                             [-0.33336938 + 0.03129582j, -0.3086671 + 0.25186613j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.64198493 - 0.23476739j, 0.07574477 - 0.70898643j],
@@ -604,9 +622,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.0618837 + 0.03547259j, 0.13360983 - 0.04392969j],
                             [0.05921332 + 0.04830463j, 0.08855585 + 0.1032419j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.01836685 - 0.70802213j, 0.32458698 + 0.61283983j],
@@ -616,9 +634,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.0014407 - 0.05724234j, 0.06436929 - 0.0854754j],
                             [-0.02206542 - 0.06216945j, 0.11065969 - 0.0289909j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.25879331 - 0.47791907j, 0.80765366 - 0.21057294j],
@@ -628,9 +646,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.0117712 + 0.02639692j, -0.06336731 + 0.02546802j],
                             [-0.0370316 - 0.00338873j, -0.06168949 + 0.05277854j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -649,19 +667,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.15169201 + 2.38113583e-01j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[-0.56292143 + 0.0j], [-0.68233484 + 0.3471064j]],
                         [[0.04009375 + 0.0j], [-0.02627709 + 0.01336726j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -673,9 +691,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.56040255 + 2.74751151e-02j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.74225908 - 0.16659962j, 0.01408167 + 0.60766655j],
@@ -685,9 +703,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.04382121 + 0.06834165j, -0.31089052 + 0.09561032j],
                             [-0.02461016 + 0.03864676j, -0.04983398 + 0.21738547j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.27821552 - 0.5621931j, 0.41867842 - 0.65421202j],
@@ -697,9 +715,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.03288746 + 0.05185058j, -0.01844897 - 0.09356204j],
                             [0.02044117 + 0.0094602j, -0.0188719 - 0.04885255j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.63001839 - 0.1228448j, 0.61964556 - 0.37543695j],
@@ -709,9 +727,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.02857678 - 0.00280397j, 0.14172784 + 0.14231509j],
                             [0.04405051 + 0.01243705j, 0.06971871 + 0.23688948j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.15310931 - 0.57409389j, 0.24262132 - 0.72704089j],
@@ -721,9 +739,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.001033 - 0.03782184j, -0.05682029 - 0.17451065j],
                             [0.05678851 - 0.00581888j, 0.02367664 - 0.23601018j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.29489378 - 0.42556727j, 0.8276743 - 0.1963455j],
@@ -733,9 +751,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.03989266 + 0.00174406j, -0.04855693 + 0.06478729j],
                             [-0.08193125 - 0.00795123j, 0.01970582 - 0.03419933j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.6242149 - 0.39104288j, 0.05223259 - 0.50331548j],
@@ -745,9 +763,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.18676717 + 0.11708021j, -0.13488388 + 0.03322995j],
                             [0.16549914 + 0.07838003j, -0.12797075 + 0.38919996j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.40352987 - 0.54787462j, 0.37478991 - 0.62664006j],
@@ -757,9 +775,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.01331457 + 0.01737411j, -0.00773853 + 0.02942618j],
                             [0.01530416 - 0.007505j, -0.01542214 + 0.057649j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -781,19 +799,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.33453637 + 2.16533594e-01j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[0.84553391 + 0.0j], [0.42046957 - 0.29618182j]],
                         [[0.00536852 + 0.0j], [-0.00721547 + 0.00508263j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -805,9 +823,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.62422913 + 1.33601857e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.54159154 - 0.23791618j, -0.12693074 + 0.78262218j],
@@ -817,9 +835,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.03237964 - 0.0527738j, 0.1876705 + 0.09789231j],
                             [0.01726761 - 0.07692992j, 0.12338143 - 0.00512195j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.72087155 - 0.02124065j, 0.25692865 - 0.63811739j],
@@ -829,9 +847,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.0370912 - 0.01306492j, -0.11513983 + 0.08069531j],
                             [-0.02590992 - 0.01949418j, -0.07197875 - 0.02132186j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.49490057 - 0.44068159j, 0.58634527 - 0.40024986j],
@@ -841,9 +859,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.04389169 - 0.09295331j, -0.22776078 + 0.19731754j],
                             [0.04156171 - 0.13488265j, -0.12033154 + 0.14990681j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.83653677 - 0.1457893j, 0.33693172 - 0.3409965j],
@@ -853,9 +871,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.08416521 - 0.01191467j, -0.34241597 - 0.04042047j],
                             [-0.08047441 + 0.03711076j, -0.15122221 - 0.13575206j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -874,9 +892,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 1.04702230e-01 - 0.02092875j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.35010121 - 0.50929425j, 0.63656554 - 0.44889199j],
@@ -886,9 +904,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.07202422 + 0.026463j, -0.05292036 + 0.13544622j],
                             [-0.06638263 + 0.00227449j, -0.07491681 + 0.03611718j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.53125031 - 0.44827867j, 0.30447718 + 0.58022154j],
@@ -898,9 +916,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.2210396 + 0.12167265j, 0.20206114 + 0.51494316j],
                             [0.242582 + 0.14841797j, -0.00469386 + 0.08099384j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -922,9 +940,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 5.84304108e-04 + 0.00398235j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -946,19 +964,19 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 0.11490256 - 1.70680121e-02j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[-0.75288987 + 0.0j], [-0.49645848 - 0.26668194j]],
                         [[0.03568883 + 0.0j], [-0.04200292 - 0.02256265j]],
-                    ]
+                    ],
                 ),
             ]
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -970,9 +988,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.30142989 + 7.23918681e-01j,
                             ],
                         ]
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.06863928 - 0.45205562j, 0.78398314 + 0.34705282j],
@@ -982,9 +1000,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.08769317 + 0.01587608j, 0.11781437 - 0.07078548j],
                             [0.17330264 + 0.0253856j, -0.12339463 + 0.09977311j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.52458466 - 0.66772652j, -0.25535251 - 0.36406196j],
@@ -994,9 +1012,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.2086418 + 0.2878948j, -0.37296014 - 0.12336764j],
                             [0.09083165 + 0.04655748j, -0.18279643 + 0.19332275j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1018,9 +1036,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.14874128 - 1.59689152e-02j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.70175569 + 0.07482401j, 0.35781689 + 0.49600066j],
@@ -1030,9 +1048,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.11292984 + 0.02618938j, -0.03565119 + 0.15945248j],
                             [-0.07058494 + 0.18199008j, 0.20064522 + 0.22255248j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.32177219 - 0.6085588j, 0.35987132 + 0.53862364j],
@@ -1042,9 +1060,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.04234042 + 0.05756838j, -0.07435727 + 0.07440923j],
                             [0.17861815 + 0.06043832j, -0.26020144 + 0.05686845j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.79036221 - 0.32223115j, 0.46292179 + 0.11226369j],
@@ -1054,9 +1072,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.00155108 - 0.02902489j, -0.35691428 + 0.07246004j],
                             [-0.03142342 - 0.06889301j, -0.19711976 + 0.00225068j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.30090412 - 0.65516809j, 0.6069695 + 0.20106071j],
@@ -1066,9 +1084,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.03476972 - 0.08474903j, -0.11930637 - 0.32038599j],
                             [-0.07056237 - 0.07622283j, -0.06034822 - 0.23862778j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.60077748 - 0.29592222j, 0.3981398 + 0.62387973j],
@@ -1078,9 +1096,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [-0.00597214 - 0.01298852j, 0.01667859 - 0.06713401j],
                             [-0.01860742 - 0.01179615j, 0.05071703 - 0.02641287j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.3980743 - 0.5459833j, 0.61797263 + 0.36914222j],
@@ -1090,9 +1108,9 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                             [0.0412892 + 0.05209187j, 0.19169424 + 0.04088923j],
                             [-0.00665881 + 0.09219977j, 0.11560778 - 0.05807443j],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1114,15 +1132,15 @@ def test_matrix_is_unitary_doesnt_destroy_input(matrix):
                                 -0.01960255 - 3.89895011e-02j,
                             ],
                         ],
-                    ]
+                    ],
                 ),
-                np.array(
+                np.asarray(
                     [
                         [[0.51884398 + 0.0j], [0.62120702 + 0.42731068j]],
                         [[-0.06981272 + 0.0j], [0.03958065 + 0.0272264j]],
-                    ]
+                    ],
                 ),
-            ]
+            ],
         ),
     ],
 )
@@ -1148,7 +1166,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [-0.57450887 + 0.0j, 0.81849836 + 0.0j],
                         [-0.75461618 + 0.31700785j, -0.52966959 + 0.2225097j],
                     ]
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1160,7 +1178,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [-0.03357532 - 0.17394833j, -0.16929719 - 0.28482443j],
                         [0.02249959 - 0.16950346j, -0.36182116 - 0.04421552j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1172,7 +1190,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [-0.0465388 - 2.77407170e-02j, -0.15985938 - 1.45843588e-04j],
                         [-0.08004871 - 5.91459988e-02j, 0.01768885 - 5.32510290e-02j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1184,7 +1202,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [-0.12864227 - 0.14306525j, -0.03469456 - 0.15829426j],
                         [0.00403368 - 0.09972594j, 0.12353193 - 0.10304484j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1196,7 +1214,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [0.11244226 + 0.14638608j, 0.02484112 - 0.27863233j],
                         [0.13104029 + 0.16062646j, 0.11180199 + 0.09762586j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1208,7 +1226,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [-0.06854947 - 0.0594566j, -0.02852405 + 0.15190948j],
                         [-0.03180957 - 0.04607897j, 0.01479036 + 0.0506297j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1220,7 +1238,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [-0.01908535 - 0.00975854j, -0.10919508 - 0.04882623j],
                         [-0.02113928 - 0.0184527j, -0.0610633 - 0.08857059j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1232,7 +1250,7 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [0.0437652 + 0.06077323j, 0.00668731 - 0.14697727j],
                         [0.02409024 + 0.06747517j, -0.10643432 - 0.07016141j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1244,15 +1262,15 @@ def test_get_unitary_form_of_mps_site_doesnt_destory_input():
                         [0.05726305 - 2.60208521e-18j, 0.02772025 + 1.34658635e-02j],
                         [0.03320878 + 2.54978495e-02j, 0.11003958 + 3.40448393e-02j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
                     [[0.66470115 + 0.0j], [0.66621201 - 0.26075466j]],
                     [[0.01717603 + 0.0j], [-0.01486055 + 0.0058164j]],
-                ]
+                ],
             ),
-        ]
+        ],
     )
     mps_site = mps[np.random.choice(range(10))]
     copied_mps_site = copy.deepcopy(mps_site)
@@ -1275,7 +1293,7 @@ def test_get_unitary_form_of_mps_site_raises_error_on_not_bd2_site():
                             -1.17756934e-16 - 7.85046229e-17j,
                         ],
                     ]
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1307,7 +1325,7 @@ def test_get_unitary_form_of_mps_site_raises_error_on_not_bd2_site():
                             -0.22810794 - 0.57412431j,
                         ],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -1351,15 +1369,15 @@ def test_get_unitary_form_of_mps_site_raises_error_on_not_bd2_site():
                             6.84768389e-03 + 2.07518928e-03j,
                         ],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
                     [[0.46754364 + 0.0j], [0.79888162 + 0.01176266j]],
                     [[0.06411457 + 0.0j], [-0.03751477 - 0.00055236j]],
-                ]
+                ],
             ),
-        ]
+        ],
     )
     mps_site = mps[1]
     pytest.raises(AssertionError, _get_unitary_form_of_mps_site, mps_site)

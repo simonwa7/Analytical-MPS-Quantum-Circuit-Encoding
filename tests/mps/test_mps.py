@@ -12,6 +12,7 @@ import copy
 
 SEED = 1234
 np.random.seed(SEED)
+np.warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 2))
@@ -34,7 +35,7 @@ def test_shape_get_random_mps_even(number_of_sites, input_max_bond_dimension):
         assert mps[-i - 1].shape[2] <= max_possible_bond_dimension
 
         bond_index = int(i % (number_of_sites / 2))
-        left_bond_dimension = min(input_max_bond_dimension, 2 ** bond_index)
+        left_bond_dimension = min(input_max_bond_dimension, 2**bond_index)
         right_bond_dimension = min(input_max_bond_dimension, 2 ** (bond_index + 1))
         assert site.shape == (left_bond_dimension, 2, right_bond_dimension)
         assert mps[-i - 1].shape == (right_bond_dimension, 2, left_bond_dimension)
@@ -60,7 +61,7 @@ def test_shape_get_random_mps_odd(number_of_sites, input_max_bond_dimension):
         assert mps[-i - 1].shape[2] <= max_possible_bond_dimension
 
         bond_index = int(i % (number_of_sites / 2))
-        left_bond_dimension = min(input_max_bond_dimension, 2 ** bond_index)
+        left_bond_dimension = min(input_max_bond_dimension, 2**bond_index)
         right_bond_dimension = min(input_max_bond_dimension, 2 ** (bond_index + 1))
         assert site.shape == (left_bond_dimension, 2, right_bond_dimension)
         assert mps[-i - 1].shape == (right_bond_dimension, 2, left_bond_dimension)
@@ -68,7 +69,7 @@ def test_shape_get_random_mps_odd(number_of_sites, input_max_bond_dimension):
     bond_index = int(number_of_sites / 2)
     site = mps[bond_index]
     assert len(site.shape) == 3
-    bond_dimension = min(input_max_bond_dimension, 2 ** bond_index)
+    bond_dimension = min(input_max_bond_dimension, 2**bond_index)
     assert site.shape[0] == bond_dimension
     assert site.shape[1] == 2
     assert site.shape[2] == bond_dimension
@@ -215,7 +216,7 @@ def test_get_wavefunction_size(number_of_sites):
     mps = get_random_mps(number_of_sites, max_bond_dimension=1024)
     wavefunction = get_wavefunction(mps)
 
-    assert wavefunction.shape == ((2 ** number_of_sites),)
+    assert wavefunction.shape == ((2**number_of_sites),)
 
 
 @pytest.mark.parametrize("number_of_sites", range(2, 20, 1))
@@ -228,13 +229,17 @@ def test_get_wavefunction_normalizes(number_of_sites):
 
 
 def test_get_wavefunction_bell_state():
-    bell_state_mps = np.array(
+    bell_state_mps = np.asarray(
         [
-            np.array([[[1.0, 0.0], [0.0, 1.0]]]),
-            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
-        ]
+            np.asarray(
+                [[[1.0, 0.0], [0.0, 1.0]]],
+            ),
+            np.asarray(
+                [[[0.5], [0.0]], [[0.0], [0.5]]],
+            ),
+        ],
     )
-    bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
+    bell_state = np.asarray([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
     wavefunction = get_wavefunction(bell_state_mps)
     np.testing.assert_array_almost_equal(wavefunction, bell_state, 1e-16)
 
@@ -301,7 +306,7 @@ def test_integration_for_mps_truncation_accuracy(number_of_sites):
 
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
 def test_get_mps_size(number_of_sites):
-    wavefunction = np.random.uniform(0, 1, 2 ** number_of_sites)
+    wavefunction = np.random.uniform(0, 1, 2**number_of_sites)
     wavefunction /= sum(wavefunction)
     mps = get_mps(wavefunction)
 
@@ -309,13 +314,17 @@ def test_get_mps_size(number_of_sites):
 
 
 def test_get_mps_bell_state():
-    expected_mps = np.array(
+    expected_mps = np.asarray(
         [
-            np.array([[[1.0, 0.0], [0.0, 1.0]]]),
-            np.array([[[0.5], [0.0]], [[0.0], [0.5]]]),
-        ]
+            np.asarray(
+                [[[1.0, 0.0], [0.0, 1.0]]],
+            ),
+            np.asarray(
+                [[[0.5], [0.0]], [[0.0], [0.5]]],
+            ),
+        ],
     )
-    bell_state = np.array([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
+    bell_state = np.asarray([1.0 / np.sqrt(2), 0.0, 0.0, 1.0 / np.sqrt(2)], dtype=float)
     bell_state_mps = get_mps(bell_state)
     assert len(bell_state_mps) == len(expected_mps)
     for site, expected_site in zip(bell_state_mps, expected_mps):
@@ -324,7 +333,7 @@ def test_get_mps_bell_state():
 
 @pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
 def test_get_mps_doesnt_destroy_original_mps(number_of_sites):
-    wavefunction = np.random.uniform(0, 1, 2 ** number_of_sites)
+    wavefunction = np.random.uniform(0, 1, 2**number_of_sites)
     wavefunction /= sum(wavefunction)
     copied_wavefunction = copy.deepcopy(wavefunction)
     get_mps(wavefunction)
