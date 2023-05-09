@@ -7,13 +7,13 @@ from qcmps.encoding.mps_encoding import (
 from qcmps.disentangling.mps_disentangling import (
     get_matrix_product_disentangler,
     disentangle_mps,
+    _get_disentangler_from_circuit,
 )
 from qcmps.mps.mps import (
     get_random_mps,
     get_wavefunction,
     get_truncated_mps,
     get_mps,
-    _get_disentangler_from_circuit,
 )
 import pytest
 import numpy as np
