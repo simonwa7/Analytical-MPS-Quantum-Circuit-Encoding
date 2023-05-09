@@ -16,8 +16,8 @@ def disentangle_mps(mps, mpd, strategy="naive"):
 
 
 def _disentangle_mps_naive(mps, mpd):
-    from src.mps.mps import get_wavefunction, get_truncated_mps, get_mps
-    from src.encoding.mps_encoding import (
+    from qcmps.mps.mps import get_wavefunction, get_truncated_mps, get_mps
+    from qcmps.encoding.mps_encoding import (
         encode_bond_dimension_two_mps_as_quantum_circuit,
     )
 
@@ -32,7 +32,7 @@ def _disentangle_mps_naive(mps, mpd):
 
 
 def _disentangle_mps_naive_with_circuit(mps, circuit):
-    from src.mps.mps import get_wavefunction, get_mps
+    from qcmps.mps.mps import get_wavefunction, get_mps
 
     mps_wf = get_wavefunction(mps)
     disentangling_operator = cirq.unitary(circuit).T.conj()

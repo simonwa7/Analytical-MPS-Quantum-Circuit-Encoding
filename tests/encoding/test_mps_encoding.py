@@ -1,4 +1,4 @@
-from src.encoding.mps_encoding import (
+from qcmps.encoding.mps_encoding import (
     add_MPS_layer,
     get_parameters_for_MPS_layer,
     encode_bond_dimension_two_mps_as_quantum_circuit,
@@ -9,10 +9,11 @@ import numpy as np
 import copy
 from itertools import combinations
 import cirq
-from src.mps.mps import get_random_mps, get_wavefunction
+from qcmps.mps.mps import get_random_mps, get_wavefunction
 
 SEED = 1234
 np.random.seed(SEED)
+np.warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 
 def test_add_MPS_layer_does_not_alter_input_parameters():
@@ -310,7 +311,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [-0.57450887 + 0.0j, 0.81849836 + 0.0j],
                         [-0.75461618 + 0.31700785j, -0.52966959 + 0.2225097j],
                     ]
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -322,7 +323,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [-0.03357532 - 0.17394833j, -0.16929719 - 0.28482443j],
                         [0.02249959 - 0.16950346j, -0.36182116 - 0.04421552j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -334,7 +335,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [-0.0465388 - 2.77407170e-02j, -0.15985938 - 1.45843588e-04j],
                         [-0.08004871 - 5.91459988e-02j, 0.01768885 - 5.32510290e-02j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -346,7 +347,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [-0.12864227 - 0.14306525j, -0.03469456 - 0.15829426j],
                         [0.00403368 - 0.09972594j, 0.12353193 - 0.10304484j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -358,7 +359,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [0.11244226 + 0.14638608j, 0.02484112 - 0.27863233j],
                         [0.13104029 + 0.16062646j, 0.11180199 + 0.09762586j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -370,7 +371,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [-0.06854947 - 0.0594566j, -0.02852405 + 0.15190948j],
                         [-0.03180957 - 0.04607897j, 0.01479036 + 0.0506297j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -382,7 +383,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [-0.01908535 - 0.00975854j, -0.10919508 - 0.04882623j],
                         [-0.02113928 - 0.0184527j, -0.0610633 - 0.08857059j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -394,7 +395,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [0.0437652 + 0.06077323j, 0.00668731 - 0.14697727j],
                         [0.02409024 + 0.06747517j, -0.10643432 - 0.07016141j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
@@ -406,15 +407,15 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         [0.05726305 - 2.60208521e-18j, 0.02772025 + 1.34658635e-02j],
                         [0.03320878 + 2.54978495e-02j, 0.11003958 + 3.40448393e-02j],
                     ],
-                ]
+                ],
             ),
             np.asarray(
                 [
                     [[0.66470115 + 0.0j], [0.66621201 - 0.26075466j]],
                     [[0.01717603 + 0.0j], [-0.01486055 + 0.0058164j]],
-                ]
+                ],
             ),
-        ]
+        ],
     )
     copied_mps = copy.deepcopy(mps)
     get_parameters_for_MPS_layer(mps)
@@ -427,7 +428,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
     [
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -441,7 +442,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [0.5667901365834367 + 0.0j],
@@ -457,7 +458,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -471,7 +472,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -495,7 +496,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.6311207544789622 + 0.0j],
@@ -511,7 +512,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -525,7 +526,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -549,7 +550,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -573,7 +574,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [0.6386421750678314 + 0.0j],
@@ -589,7 +590,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -603,7 +604,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -627,7 +628,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -651,7 +652,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -675,7 +676,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.7448053658792243 + 0.0j],
@@ -691,7 +692,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -705,7 +706,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -729,7 +730,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -753,7 +754,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -777,7 +778,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -801,7 +802,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [0.5381468033714101 + 0.0j],
@@ -817,7 +818,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -831,7 +832,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -855,7 +856,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -879,7 +880,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -903,7 +904,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -927,7 +928,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -951,7 +952,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.7541597571190264 + 0.0j],
@@ -967,7 +968,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -981,7 +982,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1005,7 +1006,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1029,7 +1030,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1053,7 +1054,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1077,7 +1078,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1101,7 +1102,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1125,7 +1126,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [0.6688304751895966 + 0.0j],
@@ -1141,7 +1142,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1155,7 +1156,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1179,7 +1180,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1203,7 +1204,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1227,7 +1228,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1251,7 +1252,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1275,7 +1276,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1299,7 +1300,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1323,7 +1324,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [-0.5783006773729699 + 0.0j],
@@ -1339,7 +1340,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
         ),
         np.asarray(
             [
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1353,7 +1354,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ]
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1377,7 +1378,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1401,7 +1402,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1425,7 +1426,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1449,7 +1450,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1473,7 +1474,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1497,7 +1498,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1521,7 +1522,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [
@@ -1545,7 +1546,7 @@ def test_get_parameters_for_MPS_layer_does_not_alter_inputs():
                         ],
                     ]
                 ),
-                np.array(
+                np.asarray(
                     [
                         [
                             [0.8308581261935942 + 0.0j],
@@ -1571,7 +1572,7 @@ def test_get_parameters_for_MPS_layer_is_correct_size(mps):
 def test_get_parameters_for_MPS_layer_initializes_in_range_0_to_2pi():
     mps = np.asarray(
         [
-            np.array(
+            np.asarray(
                 [
                     [
                         [
@@ -1585,7 +1586,7 @@ def test_get_parameters_for_MPS_layer_initializes_in_range_0_to_2pi():
                     ]
                 ]
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [
@@ -1609,7 +1610,7 @@ def test_get_parameters_for_MPS_layer_initializes_in_range_0_to_2pi():
                     ],
                 ]
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [
@@ -1633,7 +1634,7 @@ def test_get_parameters_for_MPS_layer_initializes_in_range_0_to_2pi():
                     ],
                 ]
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [
@@ -1657,7 +1658,7 @@ def test_get_parameters_for_MPS_layer_initializes_in_range_0_to_2pi():
                     ],
                 ]
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [
@@ -1681,7 +1682,7 @@ def test_get_parameters_for_MPS_layer_initializes_in_range_0_to_2pi():
                     ],
                 ]
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [0.5381468033714101 + 0.0j],
@@ -1704,15 +1705,15 @@ def test_get_parameters_for_MPS_layer_initializes_in_range_0_to_2pi():
 def test_get_parameters_for_MPS_layer_first_tensor_explicitly_for_6_qubit_mps():
     mps = np.asarray(
         [
-            np.array(
+            np.asarray(
                 [
                     [
                         [-0.63442861 - 3.55507664e-19j, 0.77298146 - 4.55049809e-17j],
                         [-0.60854993 + 4.76620731e-01j, -0.49947056 + 3.91188977e-01j],
                     ]
-                ]
+                ],
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [-0.92222366 - 0.1819367j, 0.30941761 - 0.12475666j],
@@ -1722,9 +1723,9 @@ def test_get_parameters_for_MPS_layer_first_tensor_explicitly_for_6_qubit_mps():
                         [0.02129682 + 0.03788334j, -0.06106673 + 0.00155094j],
                         [-0.03897827 - 0.01479676j, -0.02676018 - 0.05142686j],
                     ],
-                ]
+                ],
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [-0.46924002 - 0.31978182j, 0.57373457 - 0.05723614j],
@@ -1734,9 +1735,9 @@ def test_get_parameters_for_MPS_layer_first_tensor_explicitly_for_6_qubit_mps():
                         [-0.21104345 - 0.19910946j, -0.26175411 + 0.2814635j],
                         [-0.24879787 - 0.14683198j, 0.15981032 + 0.48590813j],
                     ],
-                ]
+                ],
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [-0.40667933 - 0.56160256j, 0.68125907 - 0.21949277j],
@@ -1746,9 +1747,9 @@ def test_get_parameters_for_MPS_layer_first_tensor_explicitly_for_6_qubit_mps():
                         [-0.02488891 - 0.02792529j, -0.03972115 + 0.0533864j],
                         [-0.0395187 - 0.05461744j, 0.04655174 + 0.01454731j],
                     ],
-                ]
+                ],
             ),
-            np.array(
+            np.asarray(
                 [
                     [
                         [-0.86707015 + 1.51788304e-17j, -0.13996016 - 4.70448442e-01j],
@@ -1758,15 +1759,15 @@ def test_get_parameters_for_MPS_layer_first_tensor_explicitly_for_6_qubit_mps():
                         [0.05371716 + 1.51788304e-18j, -0.13792981 - 3.29157650e-02j],
                         [-0.01614852 + 1.69266756e-02j, -0.08089098 + 1.37163838e-02j],
                     ],
-                ]
+                ],
             ),
-            np.array(
+            np.asarray(
                 [
                     [[0.68074106 + 0.0j], [0.65144518 - 0.28898916j]],
                     [[-0.01045085 + 0.0j], [0.00912508 - 0.004048j]],
-                ]
+                ],
             ),
-        ]
+        ],
     )
     parameters = get_parameters_for_MPS_layer(mps)
     first_tensor_circuit = cirq.Circuit()
@@ -1788,7 +1789,7 @@ def test_encode_bond_dimension_two_mps_as_quantum_circuit(number_of_sites):
     mps_wf = get_wavefunction(copy.deepcopy(mps))
     circuit, _ = encode_bond_dimension_two_mps_as_quantum_circuit(mps)
 
-    zero_state = np.zeros(2 ** number_of_sites)
+    zero_state = np.zeros(2**number_of_sites)
     zero_state[0] = 1
     prepared_state = cirq.unitary(circuit) @ zero_state
     overlap = abs(np.dot(mps_wf.reshape(2 ** len(mps)).T.conj(), prepared_state))
