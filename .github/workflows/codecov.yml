@@ -10,7 +10,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install requirements
-      run: pip install -r requirements.txt
+      run: python3 -m pip install -r requirements.txt
+    - name: Install local package
+      run: python3 -m pip install -e .
     - name: Run tests and collect coverage
       run: python3 -m pytest --cov ./tests/
     - name: Upload coverage reports to Codecov
