@@ -532,7 +532,9 @@ def test_integration_test_separable_state_can_be_reduced_to_bond_dimension_1_wit
     original_state[5] = 1
 
     mps = get_mps(original_state, tensor_decomposition_method="qr")
+    mps = get_truncated_mps(mps, 16)
     mps = get_truncated_mps(mps, 8)
+    mps = get_truncated_mps(mps, 4)
     truncated_mps = get_truncated_mps(mps, 1)
 
     truncated_state = get_wavefunction(truncated_mps)
