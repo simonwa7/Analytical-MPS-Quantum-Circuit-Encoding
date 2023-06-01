@@ -1,0 +1,5 @@
+(0) python==3.9
+(1) Install symmer
+(2) Install psi4 with conda install psi4
+(3) Install openfermion and openfermionpsi4 and cirq
+(4) Install specific numpy==1.22.0

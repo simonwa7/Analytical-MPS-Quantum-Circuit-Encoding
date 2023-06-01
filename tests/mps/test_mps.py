@@ -555,3 +555,22 @@ def test_integration_test_get_mps_is_normalized(
 
     norm = abs(np.dot(mps_wf.T.conj(), mps_wf))
     np.testing.assert_almost_equal(norm, 1, 15)
+
+
+@pytest.mark.parametrize("number_of_sites", range(2, 15, 1))
+@pytest.mark.parametrize("global_phase", np.random.uniform(0, 2 * np.pi, 10))
+def test_integration_test_zero_state_with_global_phase_can_be_truncated_to_bd1(
+    number_of_sites, global_phase
+):
+    zero_state = np.zeros(2**number_of_sites)
+    zero_state[0] = 1
+    zero_state = zero_state * np.exp(-2j * np.pi * 0)
+    np.testing.assert_almost_equal(abs(np.dot(zero_state.T.conj(), zero_state)), 1, 15)
+    mps = get_mps(zero_state)
+    mps_wf = get_wavefunction(mps)
+    truncated_mps = copy.deepcopy(mps)
+    for bd in range(1, 2**number_of_sites)[::-1]:
+        truncated_mps = get_truncated_mps(truncated_mps, bd)
+        truncated_mps_wf = get_wavefunction(truncated_mps)
+        overlap = abs(np.dot(mps_wf.T.conj(), truncated_mps_wf))
+        np.testing.assert_almost_equal(overlap, 1, 15)

@@ -11,7 +11,6 @@ def add_MPS_layer(circuit, qubits, parameters):
     assert len(parameters) == (15 * (len(qubits) - 1)) + 3
     parameter_counter = 0
     for qubit0, qubit1 in zip(qubits[:-1][::-1], qubits[1:][::-1]):
-
         circuit.append(cirq.rz(parameters[parameter_counter]).on(qubit0))
         circuit.append(cirq.ry(parameters[parameter_counter + 1]).on(qubit0))
         circuit.append(cirq.rz(parameters[parameter_counter + 2]).on(qubit0))
@@ -77,7 +76,9 @@ def encode_bond_dimension_two_mps_as_quantum_circuit(mps):
     return circuit, qubits
 
 
-def encode_mps_in_quantum_circuit(mps, number_of_layers=1):
+def encode_mps_in_quantum_circuit(
+    mps, number_of_layers=1, check_after_disentangling=True
+):
     from qcmps.mps.mps import get_truncated_mps
     from qcmps.disentangling.mps_disentangling import disentangle_mps
 
@@ -97,6 +98,23 @@ def encode_mps_in_quantum_circuit(mps, number_of_layers=1):
                 mps, circuit, strategy="naive_with_circuit"
             )
 
+        if check_after_disentangling:
+            from ..mps.mps import get_wavefunction
+
+            minimal_mps = copy.deepcopy(disentangled_mps)
+            for bd in range(1, max_bond_dimension)[::-1]:
+                minimal_mps = get_truncated_mps(minimal_mps, bd)
+            disentangled_mps_wf = get_wavefunction(disentangled_mps)
+            minimal_mps_wf = get_wavefunction(minimal_mps)
+            overlap = abs(np.dot(disentangled_mps_wf.T.conj(), minimal_mps_wf))
+            import pdb
+
+            pdb.set_trace()
+            if overlap > 0.99:
+                circuits.append(
+                    encode_bond_dimension_two_mps_as_quantum_circuit(minimal_mps_wf)
+                )
+                break
         # max_bond_dimension = int(max_bond_dimension / 2)
         disentangled_mps = get_truncated_mps(disentangled_mps, max_bond_dimension)
 
